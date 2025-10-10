@@ -1,17 +1,15 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
-// Remember to rename these classes and interfaces!
-
-interface MyPluginSettings {
-	mySetting: string;
+interface RhoReaderSettings {
+	rssPostsFolder: string;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
+const DEFAULT_SETTINGS: RhoReaderSettings = {
+	rssPostsFolder: ''
 }
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+export default class RhoReader extends Plugin {
+	settings: RhoReaderSettings;
 
 	async onload() {
 		await this.loadSettings();
@@ -66,7 +64,7 @@ export default class MyPlugin extends Plugin {
 		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+		this.addSettingTab(new RhoReaderSettingTab(this.app, this));
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
@@ -107,10 +105,10 @@ class SampleModal extends Modal {
 	}
 }
 
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+class RhoReaderSettingTab extends PluginSettingTab {
+	plugin: RhoReader;
 
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: RhoReader) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
@@ -121,13 +119,13 @@ class SampleSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
+			.setName('RSS Posts Folder')
+			.setDesc('Specify the folder where new posts from RSS feeds are created')
 			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
+				.setPlaceholder('folder 1 / folder 2')
+				.setValue(this.plugin.settings.rssPostsFolder)
 				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
+					this.plugin.settings.rssPostsFolder = value;
 					await this.plugin.saveSettings();
 				}));
 	}
