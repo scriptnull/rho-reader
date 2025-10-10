@@ -56,6 +56,34 @@ export default class RhoReader extends Plugin {
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new RhoReaderSettingTab(this.app, this));
+
+		// Add Sync RSS feed command
+		this.addCommand({
+			id: "sync-rss-feed",
+			name: "Sync RSS feed",
+			callback: async () => {
+				const file =
+					this.app.workspace.getActiveFile?.() ||
+					this.app.workspace.getActiveFile?.call(this.app.workspace);
+				if (!file) {
+					console.log("No active file.");
+					return;
+				}
+				const fileCache = this.app.metadataCache.getFileCache(file);
+				const feedUrl = fileCache?.frontmatter?.feed_url;
+				if (!feedUrl) {
+					console.log("No feed_url property found in frontmatter.");
+					return;
+				}
+				try {
+					const response = await fetch(feedUrl);
+					const text = await response.text();
+					console.log("RSS feed response:", text);
+				} catch (err) {
+					console.error("Failed to fetch RSS feed:", err);
+				}
+			},
+		});
 	}
 
 	onunload() {}
