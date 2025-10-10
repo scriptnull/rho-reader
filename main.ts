@@ -1,12 +1,4 @@
-import {
-	App,
-	Editor,
-	MarkdownView,
-	Modal,
-	Plugin,
-	PluginSettingTab,
-	Setting,
-} from "obsidian";
+import { App, Plugin, PluginSettingTab, Setting } from "obsidian";
 
 interface RhoReaderSettings {
 	rssPostsFolder: string;
