@@ -1,11 +1,13 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, MarkdownView, Modal, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
 interface RhoReaderSettings {
 	rssPostsFolder: string;
+	rssFeedBaseFile: string;
 }
 
 const DEFAULT_SETTINGS: RhoReaderSettings = {
-	rssPostsFolder: ''
+	rssPostsFolder: 'Rho Reader/Posts',
+	rssFeedBaseFile: 'Rho Reader/Feeds.base'
 }
 
 export default class RhoReader extends Plugin {
@@ -14,13 +16,15 @@ export default class RhoReader extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (_evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
+		this.addRibbonIcon('rss', 'Rho Reader', (_evt: MouseEvent) => {
+			if (this.settings.rssFeedBaseFile) {
+				this.app.workspace.openLinkText(
+					this.settings.rssFeedBaseFile,
+					'', // empty string for current path
+					false // open in same pane
+				);
+			}
 		});
-		// Perform additional things with the ribbon
-		ribbonIconEl.addClass('my-plugin-ribbon-class');
 
 		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
 		const statusBarItemEl = this.addStatusBarItem();
@@ -117,15 +121,23 @@ class RhoReaderSettingTab extends PluginSettingTab {
 		const {containerEl} = this;
 
 		containerEl.empty();
-
 		new Setting(containerEl)
 			.setName('RSS Posts Folder')
 			.setDesc('Specify the folder where new posts from RSS feeds are created')
 			.addText(text => text
-				.setPlaceholder('folder 1 / folder 2')
 				.setValue(this.plugin.settings.rssPostsFolder)
 				.onChange(async (value) => {
 					this.plugin.settings.rssPostsFolder = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('RSS Feed Bases')
+			.setDesc('Obsidian Bases file used to organise the RSS feeds.')
+			.addText(text => text
+				.setValue(this.plugin.settings.rssFeedBaseFile)
+				.onChange(async (value) => {
+					this.plugin.settings.rssFeedBaseFile = value;
 					await this.plugin.saveSettings();
 				}));
 	}
