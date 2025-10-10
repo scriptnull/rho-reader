@@ -6,9 +6,23 @@ interface RhoReaderSettings {
 }
 
 const DEFAULT_SETTINGS: RhoReaderSettings = {
-	rssPostsFolder: "Rho Reader/Posts",
-	rssFeedBaseFile: "Rho Reader/Feeds.base",
+	rssPostsFolder: "Posts",
+	rssFeedBaseFile: "Feeds.base",
 };
+
+const defaultBaseContent = `
+views:
+  - type: cards
+    name: All Feeds
+    filters:
+      and:
+        - file.hasProperty("feed_url")
+    order:
+      - file.name
+    sort:
+      - property: file.name
+        direction: ASC
+`;
 
 export default class RhoReader extends Plugin {
 	settings: RhoReaderSettings;
@@ -18,10 +32,24 @@ export default class RhoReader extends Plugin {
 
 		this.addRibbonIcon("rss", "Rho Reader", (_evt: MouseEvent) => {
 			if (this.settings.rssFeedBaseFile) {
+				if (
+					!this.app.vault.getAbstractFileByPath(
+						this.settings.rssFeedBaseFile
+					)
+				) {
+					// File does not exist, create it
+					const vault = this.app.vault;
+					const baseFilePath = this.settings.rssFeedBaseFile;
+					vault.adapter.write(
+						baseFilePath,
+						defaultBaseContent.trim()
+					);
+				}
+
 				this.app.workspace.openLinkText(
 					this.settings.rssFeedBaseFile,
-					"", // empty string for current path
-					false // open in same pane
+					"",
+					false
 				);
 			}
 		});
