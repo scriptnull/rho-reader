@@ -94,12 +94,57 @@ export default class RhoReader extends Plugin {
 					let count = 0;
 					const items = xmlDoc.querySelectorAll("item");
 					const entries = xmlDoc.querySelectorAll("entry");
-					if (items.length > 0) {
-						count = items.length;
-					} else if (entries.length > 0) {
-						count = entries.length;
-					}
+					const posts: Element[] =
+						items.length > 0
+							? Array.from(items)
+							: Array.from(entries);
+					count = posts.length;
 					console.log("Unread posts count:", count);
+
+					// Create a page for each post under rssPostsFolder
+					const folderPath = this.settings.rssPostsFolder;
+
+					// Ensure rssPostsFolder exists before creating posts
+					const folderAbstract =
+						this.app.vault.getAbstractFileByPath(folderPath);
+					if (!folderAbstract) {
+						await this.app.vault.createFolder(folderPath);
+					}
+					for (const post of posts) {
+						const title =
+							post.querySelector("title")?.textContent?.trim() ||
+							"Untitled";
+						let link = post
+							.querySelector("link")
+							?.textContent?.trim();
+						if (!link && post.querySelector("link")) {
+							link =
+								post
+									.querySelector("link")
+									?.getAttribute("href") || "";
+						}
+						const pubDate =
+							post
+								.querySelector("pubDate")
+								?.textContent?.trim() ||
+							post
+								.querySelector("published")
+								?.textContent?.trim() ||
+							"";
+						// Sanitize title for filename
+						const fileName =
+							title
+								.replace(/[^a-zA-Z0-9-_ ]/g, "_")
+								.replace(/\s+/g, "_") + ".md";
+						const filePath = `${folderPath}/${fileName}`;
+						if (!this.app.vault.getAbstractFileByPath(filePath)) {
+							const frontmatter = `---\ntitle: ${title}\nlink: ${link}\npubDate: ${pubDate}\n---\n`;
+							await this.app.vault.create(
+								filePath,
+								frontmatter + `\n`
+							);
+						}
+					}
 
 					// Update frontmatter robustly
 					const fileContent = await this.app.vault.read(file);
