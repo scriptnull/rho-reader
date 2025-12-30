@@ -126,3 +126,14 @@ export async function syncRssFeed(plugin: RhoReader): Promise<void> {
 
 	await updateFeedFrontmatter(plugin, feedUrl, file);
 }
+
+export async function syncAllRssFeeds(plugin: RhoReader): Promise<void> {
+	const files = plugin.app.vault.getMarkdownFiles();
+	for (const file of files) {
+		const cache = plugin.app.metadataCache.getFileCache(file);
+		const feedUrl = cache?.frontmatter?.feed_url;
+		if (feedUrl) {
+			await updateFeedFrontmatter(plugin, feedUrl, file);
+		}
+	}
+}

@@ -2,7 +2,7 @@ import { ItemView, Menu, WorkspaceLeaf, setIcon, requestUrl } from "obsidian";
 import { VIEW_TYPE_RHO_READER } from "../constants";
 import type RhoReader from "../main";
 import { defaultBaseContent } from "../settings/settings";
-import { updateFeedFrontmatter } from "../commands/syncRssFeed";
+import { syncAllRssFeeds } from "../commands/syncRssFeed";
 
 export interface FeedPost {
 	title: string;
@@ -326,13 +326,6 @@ export class RhoReaderPane extends ItemView {
 	}
 
 	async syncAllFeeds() {
-		const files = this.plugin.app.vault.getMarkdownFiles();
-		for (const file of files) {
-			const cache = this.plugin.app.metadataCache.getFileCache(file);
-			const feedUrl = cache?.frontmatter?.feed_url;
-			if (feedUrl) {
-				await updateFeedFrontmatter(this.plugin, feedUrl, file);
-			}
-		}
+		await syncAllRssFeeds(this.plugin);
 	}
 }
