@@ -1,4 +1,5 @@
 import { App, Plugin, PluginSettingTab, Setting } from "obsidian";
+import { ItemView, WorkspaceLeaf, TFile } from "obsidian";
 import * as yaml from "js-yaml";
 
 interface RhoReaderSettings {
@@ -29,11 +30,77 @@ views:
         direction: ASC
 `;
 
+const VIEW_TYPE_RHO_READER = "rho-reader-pane";
+
+class RhoReaderPane extends ItemView {
+	plugin: RhoReader;
+	currentFeedUrl: string | null = null;
+
+	constructor(leaf: WorkspaceLeaf, plugin: RhoReader) {
+		super(leaf);
+		this.plugin = plugin;
+	}
+
+	getViewType() {
+		return VIEW_TYPE_RHO_READER;
+	}
+
+	getDisplayText() {
+		return "Feed URL";
+	}
+
+	getIcon() {
+		return "rss";
+	}
+
+	async onOpen() {
+		this.render();
+	}
+
+	async setFeedUrl(url: string | null) {
+		this.currentFeedUrl = url;
+		this.render();
+	}
+
+	render() {
+		const container = this.containerEl.children[1];
+		container.empty();
+		if (this.currentFeedUrl) {
+			container.createEl("div", { text: this.currentFeedUrl });
+		} else {
+			container.createEl("div", { text: "No feed" });
+		}
+	}
+}
+
 export default class RhoReader extends Plugin {
 	settings: RhoReaderSettings;
 
 	async onload() {
 		await this.loadSettings();
+
+		this.registerView(
+			VIEW_TYPE_RHO_READER,
+			(leaf) => new RhoReaderPane(leaf, this)
+		);
+
+		this.app.workspace.on("file-open", async (file: TFile | null) => {
+			let feedUrl: string | null = null;
+			if (file) {
+				const fileCache = this.app.metadataCache.getFileCache(file);
+				feedUrl = fileCache?.frontmatter?.feed_url || null;
+			}
+			let leaf =
+				this.app.workspace.getLeavesOfType(VIEW_TYPE_RHO_READER)[0];
+			if (!leaf) {
+				const rightLeaf = this.app.workspace.getRightLeaf(false);
+				if (!rightLeaf) return; // No right leaf available
+				await rightLeaf.setViewState({ type: VIEW_TYPE_RHO_READER });
+				leaf = rightLeaf;
+			}
+			const view = leaf.view as RhoReaderPane;
+			view.setFeedUrl(feedUrl);
+		});
 
 		this.addRibbonIcon("rss", "Rho Reader", (_evt: MouseEvent) => {
 			if (this.settings.rssFeedBaseFile) {
