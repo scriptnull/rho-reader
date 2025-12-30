@@ -2,7 +2,6 @@ import { Plugin, TFile } from "obsidian";
 import {
 	RhoReaderSettings,
 	DEFAULT_SETTINGS,
-	defaultBaseContent,
 	ReadStateByFeed,
 } from "./settings/settings";
 import { VIEW_TYPE_RHO_READER } from "./constants";
@@ -42,29 +41,6 @@ export default class RhoReader extends Plugin {
 			}
 			const view = leaf.view as RhoReaderPane;
 			view.setFeedUrl(feedUrl);
-		});
-
-		this.addRibbonIcon("rss", "Rho Reader", (_evt: MouseEvent) => {
-			if (this.settings.rssFeedBaseFile) {
-				if (
-					!this.app.vault.getAbstractFileByPath(
-						this.settings.rssFeedBaseFile
-					)
-				) {
-					const vault = this.app.vault;
-					const baseFilePath = this.settings.rssFeedBaseFile;
-					vault.adapter.write(
-						baseFilePath,
-						defaultBaseContent.trim()
-					);
-				}
-
-				this.app.workspace.openLinkText(
-					this.settings.rssFeedBaseFile,
-					"",
-					false
-				);
-			}
 		});
 
 		this.addSettingTab(new RhoReaderSettingTab(this.app, this));
