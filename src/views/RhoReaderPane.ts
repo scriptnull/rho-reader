@@ -100,24 +100,53 @@ export class RhoReaderPane extends ItemView {
 			return;
 		}
 
-		const list = container.createEl("ul", { cls: "rho-reader-posts" });
+		const list = container.createEl("div", { cls: "rho-reader-posts" });
 		for (const post of this.posts) {
-			const li = list.createEl("li", { cls: "rho-reader-post" });
+			const card = list.createEl("div", { cls: "rho-reader-card" });
+
+			const title = card.createEl("div", { cls: "rho-reader-card-title" });
 			if (post.link) {
-				const link = li.createEl("a", {
+				const link = title.createEl("a", {
 					text: post.title,
 					href: post.link,
 				});
 				link.setAttr("target", "_blank");
 			} else {
-				li.createEl("span", { text: post.title });
+				title.createEl("span", { text: post.title });
 			}
+
+			const meta = card.createEl("div", { cls: "rho-reader-card-meta" });
 			if (post.pubDate) {
-				li.createEl("small", {
-					text: ` - ${post.pubDate}`,
-					cls: "rho-reader-date",
+				const dateContainer = meta.createEl("span", {
+					cls: "rho-reader-card-date",
+				});
+				dateContainer.createEl("span", {
+					text: this.formatDate(post.pubDate),
 				});
 			}
+			if (post.link) {
+				const linkContainer = meta.createEl("span", {
+					cls: "rho-reader-card-link",
+				});
+				linkContainer.createEl("a", {
+					text: new URL(post.link).hostname,
+					href: post.link,
+					attr: { target: "_blank" },
+				});
+			}
+		}
+	}
+
+	formatDate(dateString: string): string {
+		try {
+			const date = new Date(dateString);
+			return date.toLocaleDateString(undefined, {
+				year: "numeric",
+				month: "short",
+				day: "numeric",
+			});
+		} catch {
+			return dateString;
 		}
 	}
 }

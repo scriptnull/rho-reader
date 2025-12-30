@@ -1,8 +1,58 @@
-/*
+.rho-reader-posts {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 8px;
+}
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+.rho-reader-card {
+	background-color: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	padding: 12px;
+	transition: box-shadow 0.15s ease;
+}
 
-If your plugin does not need CSS, delete this file.
+.rho-reader-card:hover {
+	box-shadow: 0 2px 8px var(--background-modifier-box-shadow);
+}
 
-*/
+.rho-reader-card-title {
+	font-weight: 500;
+	margin-bottom: 8px;
+	line-height: 1.4;
+}
+
+.rho-reader-card-title a {
+	color: var(--text-normal);
+	text-decoration: none;
+}
+
+.rho-reader-card-title a:hover {
+	color: var(--text-accent);
+	text-decoration: underline;
+}
+
+.rho-reader-card-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	font-size: var(--font-smaller);
+	color: var(--text-muted);
+}
+
+.rho-reader-card-date,
+.rho-reader-card-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.rho-reader-card-link a {
+	color: var(--text-faint);
+	text-decoration: none;
+}
+
+.rho-reader-card-link a:hover {
+	color: var(--text-accent);
+}
