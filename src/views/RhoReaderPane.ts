@@ -1,4 +1,4 @@
-import { ItemView, Menu, WorkspaceLeaf, setIcon } from "obsidian";
+import { ItemView, Menu, WorkspaceLeaf, setIcon, requestUrl } from "obsidian";
 import { VIEW_TYPE_RHO_READER } from "../constants";
 import type RhoReader from "../main";
 import { defaultBaseContent } from "../settings/settings";
@@ -52,40 +52,85 @@ export class RhoReaderPane extends ItemView {
 		this.isLoading = true;
 		this.render();
 		try {
-			const response = await fetch(url);
-			const text = await response.text();
-			const parser = new DOMParser();
-			const xmlDoc = parser.parseFromString(text, "application/xml");
-			const items = xmlDoc.querySelectorAll("item");
-			const entries = xmlDoc.querySelectorAll("entry");
-			const rawPosts: Element[] =
-				items.length > 0 ? Array.from(items) : Array.from(entries);
-
-			this.posts = rawPosts.map((post) => {
-				const title =
-					post.querySelector("title")?.textContent?.trim() ||
-					"Untitled";
-				let link = post.querySelector("link")?.textContent?.trim();
-				if (!link && post.querySelector("link")) {
-					link =
-						post.querySelector("link")?.getAttribute("href") || "";
-				}
-				const pubDate =
-					post.querySelector("pubDate")?.textContent?.trim() ||
-					post.querySelector("published")?.textContent?.trim() ||
-					"";
-				const guid =
-					post.querySelector("guid")?.textContent?.trim() ||
-					post.querySelector("id")?.textContent?.trim() ||
-					"";
-				return { title, link: link || "", pubDate, guid };
-			});
+			const response = await requestUrl({ url });
+			const text = response.text;
+			const posts = this.parseRssFeed(text, url);
+			this.posts = posts;
 		} catch (err) {
-			console.error("Failed to fetch RSS feed:", err);
+			console.error("[Rho Reader] Failed to fetch RSS feed:", err);
 			this.posts = [];
 		}
 		this.isLoading = false;
 		this.render();
+	}
+
+	parseRssFeed(text: string, url: string): FeedPost[] {
+		const parser = new DOMParser();
+
+		let xmlDoc = parser.parseFromString(text, "application/xml");
+		let parserError = xmlDoc.querySelector("parsererror");
+
+		if (parserError) {
+			console.warn(
+				"[Rho Reader] XML parse failed, attempting text/html fallback:",
+				url
+			);
+			xmlDoc = parser.parseFromString(text, "text/html");
+			parserError = xmlDoc.querySelector("parsererror");
+			if (parserError) {
+				console.error(
+					"[Rho Reader] RSS XML parse error:",
+					url,
+					parserError.textContent
+				);
+				console.debug(
+					"[Rho Reader] Response snippet:",
+					text.slice(0, 500)
+				);
+				return [];
+			}
+		}
+
+		const items = xmlDoc.querySelectorAll("item");
+		const entries = xmlDoc.querySelectorAll("entry");
+
+		if (items.length === 0 && entries.length === 0) {
+			console.warn(
+				"[Rho Reader] No <item> or <entry> elements found in feed:",
+				url
+			);
+			console.debug("[Rho Reader] Response snippet:", text.slice(0, 500));
+			return [];
+		}
+
+		const rawPosts: Element[] =
+			items.length > 0 ? Array.from(items) : Array.from(entries);
+
+		return rawPosts.map((post) => {
+			const title =
+				post.querySelector("title")?.textContent?.trim() || "Untitled";
+
+			let link = "";
+			const linkEl = post.querySelector("link");
+			if (linkEl) {
+				link =
+					linkEl.textContent?.trim() ||
+					linkEl.getAttribute("href") ||
+					"";
+			}
+
+			const pubDate =
+				post.querySelector("pubDate")?.textContent?.trim() ||
+				post.querySelector("published")?.textContent?.trim() ||
+				"";
+
+			const guid =
+				post.querySelector("guid")?.textContent?.trim() ||
+				post.querySelector("id")?.textContent?.trim() ||
+				"";
+
+			return { title, link, pubDate, guid };
+		});
 	}
 
 	render() {
