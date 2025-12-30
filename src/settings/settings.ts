@@ -38,4 +38,17 @@ views:
     sort:
       - property: file.name
         direction: ASC
+  - type: cards
+    name: Unread
+    filters:
+      and:
+        - file.hasProperty("feed_url")
+        - note.rho_unread_posts > 0
+    order:
+      - file.name
+      - rho_unread_posts
+      - rho_all_posts
+    sort:
+      - property: note.rho_unread_posts
+        direction: DESC
 `;
