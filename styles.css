@@ -65,4 +65,80 @@
 	text-decoration: line-through;
 }
 
+.rho-reader-landing {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 32px 16px;
+	text-align: center;
+	height: 100%;
+}
+
+.rho-reader-landing-title {
+	font-size: var(--font-ui-larger);
+	font-weight: 600;
+	margin-bottom: 4px;
+}
+
+.rho-reader-landing-subtitle {
+	font-size: var(--font-ui-small);
+	color: var(--text-muted);
+	margin-bottom: 24px;
+}
+
+.rho-reader-landing-actions {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	width: 100%;
+	max-width: 200px;
+}
+
+.rho-reader-landing-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 10px 16px;
+	border-radius: 6px;
+	border: 1px solid var(--background-modifier-border);
+	background-color: var(--background-secondary);
+	color: var(--text-normal);
+	cursor: pointer;
+	font-size: var(--font-ui-small);
+	transition: background-color 0.15s ease;
+}
+
+.rho-reader-landing-btn:hover {
+	background-color: var(--background-modifier-hover);
+}
+
+.rho-reader-landing-btn--primary {
+	background-color: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-color: var(--interactive-accent);
+}
+
+.rho-reader-landing-btn--primary:hover {
+	background-color: var(--interactive-accent-hover);
+}
+
+.rho-reader-landing-footer {
+	margin-top: 32px;
+}
+
+.rho-reader-landing-star {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.rho-reader-landing-star:hover {
+	color: var(--text-accent);
+}
 

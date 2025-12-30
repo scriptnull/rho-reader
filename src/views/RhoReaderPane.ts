@@ -1,6 +1,8 @@
-import { ItemView, Menu, WorkspaceLeaf } from "obsidian";
+import { ItemView, Menu, WorkspaceLeaf, setIcon } from "obsidian";
 import { VIEW_TYPE_RHO_READER } from "../constants";
 import type RhoReader from "../main";
+import { defaultBaseContent } from "../settings/settings";
+import { updateFeedFrontmatter } from "../commands/syncRssFeed";
 
 export interface FeedPost {
 	title: string;
@@ -91,7 +93,7 @@ export class RhoReaderPane extends ItemView {
 		container.empty();
 
 		if (!this.currentFeedUrl) {
-			container.createEl("div", { text: "No feed" });
+			this.renderLanding(container as HTMLElement);
 			return;
 		}
 
@@ -118,7 +120,10 @@ export class RhoReaderPane extends ItemView {
 			if (post.link) {
 				card.style.cursor = "pointer";
 				card.addEventListener("click", () => {
-					if (this.currentFeedUrl && !this.plugin.isPostRead(this.currentFeedUrl, post)) {
+					if (
+						this.currentFeedUrl &&
+						!this.plugin.isPostRead(this.currentFeedUrl, post)
+					) {
 						this.plugin.markPostRead(this.currentFeedUrl, post);
 						card.addClass("rho-reader-card--read");
 					}
@@ -131,7 +136,10 @@ export class RhoReaderPane extends ItemView {
 				if (!this.currentFeedUrl) return;
 
 				const menu = new Menu();
-				const currentlyRead = this.plugin.isPostRead(this.currentFeedUrl, post);
+				const currentlyRead = this.plugin.isPostRead(
+					this.currentFeedUrl,
+					post
+				);
 
 				if (currentlyRead) {
 					menu.addItem((item) =>
@@ -139,7 +147,10 @@ export class RhoReaderPane extends ItemView {
 							.setTitle("Mark as unread")
 							.setIcon("eye-off")
 							.onClick(() => {
-								this.plugin.markPostUnread(this.currentFeedUrl!, post);
+								this.plugin.markPostUnread(
+									this.currentFeedUrl!,
+									post
+								);
 								card.removeClass("rho-reader-card--read");
 							})
 					);
@@ -149,7 +160,10 @@ export class RhoReaderPane extends ItemView {
 							.setTitle("Mark as read")
 							.setIcon("eye")
 							.onClick(() => {
-								this.plugin.markPostRead(this.currentFeedUrl!, post);
+								this.plugin.markPostRead(
+									this.currentFeedUrl!,
+									post
+								);
 								card.addClass("rho-reader-card--read");
 							})
 					);
@@ -158,7 +172,9 @@ export class RhoReaderPane extends ItemView {
 				menu.showAtMouseEvent(evt);
 			});
 
-			const title = card.createEl("div", { cls: "rho-reader-card-title" });
+			const title = card.createEl("div", {
+				cls: "rho-reader-card-title",
+			});
 			title.createEl("span", { text: post.title });
 
 			const meta = card.createEl("div", { cls: "rho-reader-card-meta" });
@@ -191,6 +207,87 @@ export class RhoReaderPane extends ItemView {
 			});
 		} catch {
 			return dateString;
+		}
+	}
+
+	renderLanding(container: HTMLElement) {
+		const landing = container.createEl("div", {
+			cls: "rho-reader-landing",
+		});
+
+		landing.createEl("div", {
+			cls: "rho-reader-landing-title",
+			text: "Rho Reader",
+		});
+		landing.createEl("div", {
+			cls: "rho-reader-landing-subtitle",
+			text: "Reading companion for Obsidian",
+		});
+
+		const actions = landing.createEl("div", {
+			cls: "rho-reader-landing-actions",
+		});
+
+		const baseFilePath = this.plugin.settings.rssFeedBaseFile;
+		const baseFileExists =
+			!!this.plugin.app.vault.getAbstractFileByPath(baseFilePath);
+
+		if (!baseFileExists) {
+			const getStartedBtn = actions.createEl("button", {
+				cls: "rho-reader-landing-btn rho-reader-landing-btn--primary",
+			});
+			setIcon(getStartedBtn.createSpan(), "rocket");
+			getStartedBtn.createSpan({ text: "Get started" });
+			getStartedBtn.addEventListener("click", async () => {
+				await this.plugin.app.vault.adapter.write(
+					baseFilePath,
+					defaultBaseContent.trim()
+				);
+				this.plugin.app.workspace.openLinkText(baseFilePath, "", false);
+			});
+		} else {
+			const openFeedsBtn = actions.createEl("button", {
+				cls: "rho-reader-landing-btn rho-reader-landing-btn--primary",
+			});
+			setIcon(openFeedsBtn.createSpan(), "list");
+			openFeedsBtn.createSpan({ text: "Open feeds" });
+			openFeedsBtn.addEventListener("click", () => {
+				this.plugin.app.workspace.openLinkText(baseFilePath, "", false);
+			});
+		}
+
+		const syncBtn = actions.createEl("button", {
+			cls: "rho-reader-landing-btn",
+		});
+		setIcon(syncBtn.createSpan(), "refresh-cw");
+		syncBtn.createSpan({ text: "Sync feeds" });
+		syncBtn.addEventListener("click", async () => {
+			await this.syncAllFeeds();
+		});
+
+		const footer = landing.createEl("div", {
+			cls: "rho-reader-landing-footer",
+		});
+		const starLink = footer.createEl("a", {
+			cls: "rho-reader-landing-star",
+			href: "https://github.com/scriptnull/rho-reader",
+		});
+		setIcon(starLink.createSpan(), "star");
+		starLink.createSpan({ text: "Star on GitHub" });
+		starLink.addEventListener("click", (e) => {
+			e.preventDefault();
+			window.open("https://github.com/scriptnull/rho-reader", "_blank");
+		});
+	}
+
+	async syncAllFeeds() {
+		const files = this.plugin.app.vault.getMarkdownFiles();
+		for (const file of files) {
+			const cache = this.plugin.app.metadataCache.getFileCache(file);
+			const feedUrl = cache?.frontmatter?.feed_url;
+			if (feedUrl) {
+				await updateFeedFrontmatter(this.plugin, feedUrl, file);
+			}
 		}
 	}
 }
