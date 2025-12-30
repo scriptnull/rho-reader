@@ -9,6 +9,10 @@ import { VIEW_TYPE_RHO_READER } from "./constants";
 import { RhoReaderPane, FeedPost } from "./views/RhoReaderPane";
 import { RhoReaderSettingTab } from "./settings/RhoReaderSettingTab";
 import { registerCommands } from "./commands/register";
+import {
+	findFileForFeedUrl,
+	updateFeedFrontmatter,
+} from "./commands/syncRssFeed";
 
 export default class RhoReader extends Plugin {
 	settings: RhoReaderSettings;
@@ -109,6 +113,7 @@ export default class RhoReader extends Plugin {
 		const byFeed = this.settings.readState[feedUrl];
 		byFeed[postKey] = { read: true, readAt: Date.now() };
 		this.saveSettingsDebounced();
+		this.updateFeedCounts(feedUrl);
 	}
 
 	markPostUnread(feedUrl: string, post: FeedPost) {
@@ -116,6 +121,14 @@ export default class RhoReader extends Plugin {
 		if (this.settings.readState[feedUrl]?.[postKey]) {
 			delete this.settings.readState[feedUrl][postKey];
 			this.saveSettingsDebounced();
+			this.updateFeedCounts(feedUrl);
+		}
+	}
+
+	private async updateFeedCounts(feedUrl: string) {
+		const file = findFileForFeedUrl(this, feedUrl);
+		if (file) {
+			await updateFeedFrontmatter(this, feedUrl, file);
 		}
 	}
 }

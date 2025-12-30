@@ -21,8 +21,10 @@ export const DEFAULT_SETTINGS: RhoReaderSettings = {
 
 export const defaultBaseContent = `
 properties:
-  note.rho_unread_posts_count:
+  note.rho_unread_posts:
     displayName: Unread
+  note.rho_all_posts:
+    displayName: All
 views:
   - type: cards
     name: All Feeds
@@ -31,7 +33,8 @@ views:
         - file.hasProperty("feed_url")
     order:
       - file.name
-      - rho_unread_posts_count
+      - rho_unread_posts
+      - rho_all_posts
     sort:
       - property: file.name
         direction: ASC
