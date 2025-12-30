@@ -56,3 +56,13 @@
 .rho-reader-card-link a:hover {
 	color: var(--text-accent);
 }
+
+.rho-reader-card--read {
+	opacity: 0.6;
+}
+
+.rho-reader-card--read .rho-reader-card-title {
+	text-decoration: line-through;
+}
+
+

@@ -3,14 +3,16 @@ import {
 	RhoReaderSettings,
 	DEFAULT_SETTINGS,
 	defaultBaseContent,
+	ReadStateByFeed,
 } from "./settings/settings";
 import { VIEW_TYPE_RHO_READER } from "./constants";
-import { RhoReaderPane } from "./views/RhoReaderPane";
+import { RhoReaderPane, FeedPost } from "./views/RhoReaderPane";
 import { RhoReaderSettingTab } from "./settings/RhoReaderSettingTab";
 import { registerCommands } from "./commands/register";
 
 export default class RhoReader extends Plugin {
 	settings: RhoReaderSettings;
+	private saveSettingsTimeout: number | null = null;
 
 	async onload() {
 		await this.loadSettings();
@@ -78,5 +80,42 @@ export default class RhoReader extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+	}
+
+	saveSettingsDebounced(delay = 500) {
+		if (this.saveSettingsTimeout !== null) {
+			window.clearTimeout(this.saveSettingsTimeout);
+		}
+		this.saveSettingsTimeout = window.setTimeout(() => {
+			this.saveSettings();
+			this.saveSettingsTimeout = null;
+		}, delay);
+	}
+
+	getPostKey(post: FeedPost): string {
+		return post.guid || post.link || `${post.title}::${post.pubDate}`;
+	}
+
+	isPostRead(feedUrl: string, post: FeedPost): boolean {
+		const postKey = this.getPostKey(post);
+		return !!this.settings.readState?.[feedUrl]?.[postKey]?.read;
+	}
+
+	markPostRead(feedUrl: string, post: FeedPost) {
+		const postKey = this.getPostKey(post);
+		if (!this.settings.readState[feedUrl]) {
+			this.settings.readState[feedUrl] = {} as ReadStateByFeed;
+		}
+		const byFeed = this.settings.readState[feedUrl];
+		byFeed[postKey] = { read: true, readAt: Date.now() };
+		this.saveSettingsDebounced();
+	}
+
+	markPostUnread(feedUrl: string, post: FeedPost) {
+		const postKey = this.getPostKey(post);
+		if (this.settings.readState[feedUrl]?.[postKey]) {
+			delete this.settings.readState[feedUrl][postKey];
+			this.saveSettingsDebounced();
+		}
 	}
 }

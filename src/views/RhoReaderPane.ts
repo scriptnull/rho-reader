@@ -1,11 +1,12 @@
-import { ItemView, WorkspaceLeaf } from "obsidian";
+import { ItemView, Menu, WorkspaceLeaf } from "obsidian";
 import { VIEW_TYPE_RHO_READER } from "../constants";
 import type RhoReader from "../main";
 
-interface FeedPost {
+export interface FeedPost {
 	title: string;
 	link: string;
 	pubDate: string;
+	guid: string;
 }
 
 export class RhoReaderPane extends ItemView {
@@ -71,7 +72,11 @@ export class RhoReaderPane extends ItemView {
 					post.querySelector("pubDate")?.textContent?.trim() ||
 					post.querySelector("published")?.textContent?.trim() ||
 					"";
-				return { title, link: link || "", pubDate };
+				const guid =
+					post.querySelector("guid")?.textContent?.trim() ||
+					post.querySelector("id")?.textContent?.trim() ||
+					"";
+				return { title, link: link || "", pubDate, guid };
 			});
 		} catch (err) {
 			console.error("Failed to fetch RSS feed:", err);
@@ -102,18 +107,59 @@ export class RhoReaderPane extends ItemView {
 
 		const list = container.createEl("div", { cls: "rho-reader-posts" });
 		for (const post of this.posts) {
-			const card = list.createEl("div", { cls: "rho-reader-card" });
+			const isRead =
+				this.currentFeedUrl &&
+				this.plugin.isPostRead(this.currentFeedUrl, post);
+
+			const card = list.createEl("div", {
+				cls: `rho-reader-card${isRead ? " rho-reader-card--read" : ""}`,
+			});
+
+			if (post.link) {
+				card.style.cursor = "pointer";
+				card.addEventListener("click", () => {
+					if (this.currentFeedUrl && !this.plugin.isPostRead(this.currentFeedUrl, post)) {
+						this.plugin.markPostRead(this.currentFeedUrl, post);
+						card.addClass("rho-reader-card--read");
+					}
+					window.open(post.link, "_blank");
+				});
+			}
+
+			card.addEventListener("contextmenu", (evt) => {
+				evt.preventDefault();
+				if (!this.currentFeedUrl) return;
+
+				const menu = new Menu();
+				const currentlyRead = this.plugin.isPostRead(this.currentFeedUrl, post);
+
+				if (currentlyRead) {
+					menu.addItem((item) =>
+						item
+							.setTitle("Mark as unread")
+							.setIcon("eye-off")
+							.onClick(() => {
+								this.plugin.markPostUnread(this.currentFeedUrl!, post);
+								card.removeClass("rho-reader-card--read");
+							})
+					);
+				} else {
+					menu.addItem((item) =>
+						item
+							.setTitle("Mark as read")
+							.setIcon("eye")
+							.onClick(() => {
+								this.plugin.markPostRead(this.currentFeedUrl!, post);
+								card.addClass("rho-reader-card--read");
+							})
+					);
+				}
+
+				menu.showAtMouseEvent(evt);
+			});
 
 			const title = card.createEl("div", { cls: "rho-reader-card-title" });
-			if (post.link) {
-				const link = title.createEl("a", {
-					text: post.title,
-					href: post.link,
-				});
-				link.setAttr("target", "_blank");
-			} else {
-				title.createEl("span", { text: post.title });
-			}
+			title.createEl("span", { text: post.title });
 
 			const meta = card.createEl("div", { cls: "rho-reader-card-meta" });
 			if (post.pubDate) {
@@ -128,10 +174,8 @@ export class RhoReaderPane extends ItemView {
 				const linkContainer = meta.createEl("span", {
 					cls: "rho-reader-card-link",
 				});
-				linkContainer.createEl("a", {
+				linkContainer.createEl("span", {
 					text: new URL(post.link).hostname,
-					href: post.link,
-					attr: { target: "_blank" },
 				});
 			}
 		}
