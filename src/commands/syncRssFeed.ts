@@ -30,34 +30,6 @@ export async function syncRssFeed(plugin: RhoReader): Promise<void> {
 		count = posts.length;
 		console.log("Unread posts count:", count);
 
-		const folderPath = plugin.settings.rssPostsFolder;
-
-		const folderAbstract =
-			plugin.app.vault.getAbstractFileByPath(folderPath);
-		if (!folderAbstract) {
-			await plugin.app.vault.createFolder(folderPath);
-		}
-		for (const post of posts) {
-			const title =
-				post.querySelector("title")?.textContent?.trim() || "Untitled";
-			let link = post.querySelector("link")?.textContent?.trim();
-			if (!link && post.querySelector("link")) {
-				link = post.querySelector("link")?.getAttribute("href") || "";
-			}
-			const pubDate =
-				post.querySelector("pubDate")?.textContent?.trim() ||
-				post.querySelector("published")?.textContent?.trim() ||
-				"";
-			const fileName =
-				title.replace(/[^a-zA-Z0-9-_ ]/g, "_").replace(/\s+/g, "_") +
-				".md";
-			const filePath = `${folderPath}/${fileName}`;
-			if (!plugin.app.vault.getAbstractFileByPath(filePath)) {
-				const frontmatter = `---\ntitle: ${title}\nlink: ${link}\npubDate: ${pubDate}\n---\n`;
-				await plugin.app.vault.create(filePath, frontmatter + `\n`);
-			}
-		}
-
 		const fileContent = await plugin.app.vault.read(file);
 		let newContent = fileContent;
 		if (fileContent.startsWith("---")) {

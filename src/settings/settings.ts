@@ -1,10 +1,8 @@
 export interface RhoReaderSettings {
-	rssPostsFolder: string;
 	rssFeedBaseFile: string;
 }
 
 export const DEFAULT_SETTINGS: RhoReaderSettings = {
-	rssPostsFolder: "Posts",
 	rssFeedBaseFile: "Feeds.base",
 };
 
