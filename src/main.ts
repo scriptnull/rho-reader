@@ -1,5 +1,4 @@
 import { Plugin, TFile } from "obsidian";
-import * as yaml from "js-yaml";
 import {
 	RhoReaderSettings,
 	DEFAULT_SETTINGS,
@@ -8,6 +7,7 @@ import {
 import { VIEW_TYPE_RHO_READER } from "./constants";
 import { RhoReaderPane } from "./views/RhoReaderPane";
 import { RhoReaderSettingTab } from "./settings/RhoReaderSettingTab";
+import { registerCommands } from "./commands/register";
 
 export default class RhoReader extends Plugin {
 	settings: RhoReaderSettings;
@@ -63,126 +63,7 @@ export default class RhoReader extends Plugin {
 
 		this.addSettingTab(new RhoReaderSettingTab(this.app, this));
 
-		this.addCommand({
-			id: "sync-rss-feed",
-			name: "Sync RSS feed",
-			callback: async () => {
-				const file =
-					this.app.workspace.getActiveFile?.() ||
-					this.app.workspace.getActiveFile?.call(this.app.workspace);
-				if (!file) {
-					console.log("No active file.");
-					return;
-				}
-				const fileCache = this.app.metadataCache.getFileCache(file);
-				const feedUrl = fileCache?.frontmatter?.feed_url;
-				if (!feedUrl) {
-					console.log("No feed_url property found in frontmatter.");
-					return;
-				}
-				try {
-					const response = await fetch(feedUrl);
-					const text = await response.text();
-					console.log("RSS feed response:", text);
-
-					const parser = new DOMParser();
-					const xmlDoc = parser.parseFromString(
-						text,
-						"application/xml"
-					);
-					let count = 0;
-					const items = xmlDoc.querySelectorAll("item");
-					const entries = xmlDoc.querySelectorAll("entry");
-					const posts: Element[] =
-						items.length > 0
-							? Array.from(items)
-							: Array.from(entries);
-					count = posts.length;
-					console.log("Unread posts count:", count);
-
-					const folderPath = this.settings.rssPostsFolder;
-
-					const folderAbstract =
-						this.app.vault.getAbstractFileByPath(folderPath);
-					if (!folderAbstract) {
-						await this.app.vault.createFolder(folderPath);
-					}
-					for (const post of posts) {
-						const title =
-							post.querySelector("title")?.textContent?.trim() ||
-							"Untitled";
-						let link = post
-							.querySelector("link")
-							?.textContent?.trim();
-						if (!link && post.querySelector("link")) {
-							link =
-								post
-									.querySelector("link")
-									?.getAttribute("href") || "";
-						}
-						const pubDate =
-							post
-								.querySelector("pubDate")
-								?.textContent?.trim() ||
-							post
-								.querySelector("published")
-								?.textContent?.trim() ||
-							"";
-						const fileName =
-							title
-								.replace(/[^a-zA-Z0-9-_ ]/g, "_")
-								.replace(/\s+/g, "_") + ".md";
-						const filePath = `${folderPath}/${fileName}`;
-						if (!this.app.vault.getAbstractFileByPath(filePath)) {
-							const frontmatter = `---\ntitle: ${title}\nlink: ${link}\npubDate: ${pubDate}\n---\n`;
-							await this.app.vault.create(
-								filePath,
-								frontmatter + `\n`
-							);
-						}
-					}
-
-					const fileContent = await this.app.vault.read(file);
-					let newContent = fileContent;
-					if (fileContent.startsWith("---")) {
-						const endFrontmatter = fileContent.indexOf("---", 3);
-						if (endFrontmatter !== -1) {
-							const frontmatterRaw = fileContent
-								.substring(3, endFrontmatter)
-								.trim();
-							const body = fileContent.substring(
-								endFrontmatter + 3
-							);
-							let frontmatterObj: Record<string, unknown> = {};
-							try {
-								frontmatterObj =
-									(yaml.load(frontmatterRaw) as Record<
-										string,
-										unknown
-									>) || {};
-							} catch (e) {
-								console.error(
-									"Failed to parse frontmatter YAML:",
-									e
-								);
-							}
-							frontmatterObj.rho_unread_posts_count = count;
-							const updatedFrontmatter = `---\n${yaml.dump(
-								frontmatterObj
-							)}---\n`;
-							newContent = updatedFrontmatter + body;
-						}
-					} else {
-						newContent =
-							`---\nrho_unread_posts_count: ${count}\n---\n` +
-							fileContent;
-					}
-					await this.app.vault.modify(file, newContent);
-				} catch (err) {
-					console.error("Failed to fetch or update RSS feed:", err);
-				}
-			},
-		});
+		registerCommands(this);
 	}
 
 	onunload() {}
