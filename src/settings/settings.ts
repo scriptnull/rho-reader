@@ -23,8 +23,6 @@ export const defaultBaseContent = `
 properties:
   note.rho_unread_posts:
     displayName: Unread
-  note.rho_all_posts:
-    displayName: All
 views:
   - type: cards
     name: All Feeds
@@ -34,7 +32,6 @@ views:
     order:
       - file.name
       - rho_unread_posts
-      - rho_all_posts
     sort:
       - property: file.name
         direction: ASC
@@ -47,7 +44,6 @@ views:
     order:
       - file.name
       - rho_unread_posts
-      - rho_all_posts
     sort:
       - property: note.rho_unread_posts
         direction: DESC
