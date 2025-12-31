@@ -3,8 +3,8 @@
 </p>
 
 <p align="center">
-  <b>A Reading Companion for Obsidian</b><br/>
-  RSS Feeds · Reading Lists · Your Notes — all in one place
+  <b>A Reading Companion for Obsidian 🌸📚</b><br/><br />
+  RSS Feeds · Reading Lists · Your Notes — all in one place<br /><br />
 </p>
 
 <p align="center">
