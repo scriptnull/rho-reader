@@ -27,7 +27,7 @@
 
 ### Add RSS feed
 
-Add the RSS link as `feed_url` property in any page. You can now start seeing their posts on the RSS pane on the right.
+Add the RSS link as the `feed_url` property on any page. You can now start seeing their posts in the RSS pane on the right.
 
 <img width="1505" height="492" alt="image" src="https://github.com/user-attachments/assets/548f3563-e56e-4b68-93cf-144e3596c603" />
 
@@ -35,10 +35,9 @@ Add the RSS link as `feed_url` property in any page. You can now start seeing th
 
 Clicking on a post will open the post in your web browser (yep, that is the best place to read a blog).
 
-If you want to mark it as "Unread", you can do by right clicking on the post.
+If you want to mark it as "Unread", you can do so by right-clicking on the post.
 
 <img width="660" height="491" alt="image" src="https://github.com/user-attachments/assets/331e7546-cc3f-450a-a31f-40c450069202" />
-
 
 ## 🧪 Status
 
