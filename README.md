@@ -18,10 +18,10 @@
 
 ## 🚀 Features
 
-- 🌱 A simple reading companion backed by [Obsidian Bases](https://help.obsidian.md/bases)
-- 📡 Supports RSS / Atom / JSON feeds
-- ✅ Track your read / unread posts
-- 🔜 More coming soon
+- Built on top of [Obsidian Bases](https://help.obsidian.md/bases).
+- Supports RSS / Atom feeds.
+- Track your read / unread posts.
+- (more to come...)
 
 ## 🧪 Status
 
