@@ -25,19 +25,29 @@
 
 ## 💡 How to Use
 
-### Add RSS feed
+### Browse feeds
 
-Add the RSS link as the `feed_url` property on any page. You can now start seeing their posts in the RSS pane on the right.
+Browsing the RSS/Atom feeds that you follow is just browsing an Obsidian Base managed by Rho.
 
-<img width="1505" height="492" alt="image" src="https://github.com/user-attachments/assets/548f3563-e56e-4b68-93cf-144e3596c603" />
+<img width="1440" height="1080" alt="image" src="https://github.com/user-attachments/assets/73504ced-f7fd-45a6-a3e6-5b8214a7bde2" />
 
-### Mark as read/unread
+### View Unread feeds
 
-Clicking on a post will open the post in your web browser (yep, that is the best place to read a blog).
+This is as simple as switching to "Unread" view of the Obsidian Base managed by Rho.
 
-If you want to mark it as "Unread", you can do so by right-clicking on the post.
+<img width="1146" height="1080" alt="image" src="https://github.com/user-attachments/assets/dd6d3a00-15f7-45be-8b05-b2aa443a2921" />
 
-<img width="660" height="491" alt="image" src="https://github.com/user-attachments/assets/331e7546-cc3f-450a-a31f-40c450069202" />
+### Add RSS feeds
+
+Adding RSS feed is just adding a `feed_url` property to any Obsidian note in your vault.
+
+<img width="1440" height="1080" alt="image" src="https://github.com/user-attachments/assets/ae51e964-a9fc-4d62-95d3-872ef3f46c02" />
+
+### Mark as Unread
+
+By default, when you click on a post to read it, Rho will mark it as read. If you wish to mark it as unread, you can do it via right-click.
+
+<img width="1440" height="1080" alt="image" src="https://github.com/user-attachments/assets/1e49e4c2-7636-413e-b929-7cf61ed246e9" />
 
 ## 🛠️ Installation
 
