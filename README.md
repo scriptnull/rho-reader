@@ -39,13 +39,9 @@ If you want to mark it as "Unread", you can do so by right-clicking on the post.
 
 <img width="660" height="491" alt="image" src="https://github.com/user-attachments/assets/331e7546-cc3f-450a-a31f-40c450069202" />
 
-## 🧪 Status
-
-Rho Reader is under active development and not yet published in the Obsidian community plugin store.
-
 ## 🛠️ Installation
 
-Since the plugin is still early-stage, you'll need to install it manually.
+Rho Reader is under active development and not yet published in the Obsidian community plugin store. So you'll need to install it manually.
 
 ### Option 1: Download zip
 
