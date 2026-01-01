@@ -45,7 +45,17 @@ Rho Reader is under active development and not yet published in the Obsidian com
 
 ## 🛠️ Installation
 
-Since the plugin is still early-stage, you’ll need to install it manually:
+Since the plugin is still early-stage, you'll need to install it manually.
+
+### Option 1: Download zip
+
+1. Go to the [Releases](https://github.com/scriptnull/rho-reader/releases) page.
+2. Download `rho-reader.zip` from the latest release.
+3. Extract the zip file.
+4. Copy the `rho-reader` folder to your vault's plugins directory: `<your-vault>/.obsidian/plugins/`
+5. Restart Obsidian and enable the plugin in **Settings → Community plugins**.
+
+### Option 2: Build from source
 
 ```bash
 cd <path-to-your-vault>/.obsidian/plugins
@@ -54,3 +64,5 @@ cd rho-reader
 npm install
 npm run build
 ```
+
+Restart Obsidian and enable the plugin in **Settings → Community plugins**.
