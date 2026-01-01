@@ -70,5 +70,3 @@ cd rho-reader
 npm install
 npm run build
 ```
-
-Restart Obsidian and enable the plugin in **Settings → Community plugins**.
