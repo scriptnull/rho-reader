@@ -10,6 +10,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/WIP-🚧-yellow" />
   <img src="https://img.shields.io/badge/Obsidian-Plugin-7f6df2" />
+  <a href="https://github.com/scriptnull/rho-reader/actions/workflows/test.yml"><img src="https://github.com/scriptnull/rho-reader/actions/workflows/test.yml/badge.svg?branch=main" /></a>
 </p>
 
 <br />
