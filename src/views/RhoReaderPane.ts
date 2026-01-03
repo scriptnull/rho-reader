@@ -215,8 +215,19 @@ export class RhoReaderPane extends ItemView {
 					);
 				}
 
+				if (post.link) {
+					menu.addItem((item) =>
+						item
+							.setTitle("Copy link")
+							.setIcon("link")
+							.onClick(async () => {
+								await navigator.clipboard.writeText(post.link!);
+							})
+					);
+				}
+
 				menu.showAtMouseEvent(evt);
-			});
+				});
 
 			const title = card.createEl("div", {
 				cls: "rho-reader-card-title",
