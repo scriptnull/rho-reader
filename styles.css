@@ -228,3 +228,26 @@
 	background-color: var(--interactive-accent-hover);
 }
 
+.rho-reader-status-bar {
+	display: flex;
+	align-items: center;
+}
+
+.rho-reader-status-bar svg {
+	width: 14px;
+	height: 14px;
+}
+
+.rho-reader-syncing svg {
+	animation: rho-reader-spin 1s linear infinite;
+}
+
+@keyframes rho-reader-spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+

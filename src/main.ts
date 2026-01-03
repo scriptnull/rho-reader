@@ -1,4 +1,4 @@
-import { Plugin, TFile } from "obsidian";
+import { Plugin, TFile, setIcon } from "obsidian";
 import {
 	RhoReaderSettings,
 	DEFAULT_SETTINGS,
@@ -19,6 +19,25 @@ import {
 export default class RhoReader extends Plugin {
 	settings: RhoReaderSettings;
 	private saveSettingsTimeout: number | null = null;
+	isSyncing = false;
+	private statusBarItem: HTMLElement | null = null;
+
+	setSyncing(syncing: boolean) {
+		this.isSyncing = syncing;
+		this.updateStatusBar();
+	}
+
+	private updateStatusBar() {
+		if (!this.statusBarItem) return;
+		this.statusBarItem.empty();
+		if (this.isSyncing) {
+			this.statusBarItem.addClass("rho-reader-syncing");
+			setIcon(this.statusBarItem, "refresh-cw");
+			this.statusBarItem.setAttribute("aria-label", "Rho Reader: Syncing feeds...");
+		} else {
+			this.statusBarItem.removeClass("rho-reader-syncing");
+		}
+	}
 
 	async onload() {
 		await this.loadSettings();
@@ -47,6 +66,9 @@ export default class RhoReader extends Plugin {
 		});
 
 		this.addSettingTab(new RhoReaderSettingTab(this.app, this));
+
+		this.statusBarItem = this.addStatusBarItem();
+		this.statusBarItem.addClass("rho-reader-status-bar");
 
 		registerCommands(this);
 	}
