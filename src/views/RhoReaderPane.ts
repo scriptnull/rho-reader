@@ -295,6 +295,25 @@ export class RhoReaderPane extends ItemView {
 		syncBtn.addEventListener("click", () => {
 			this.syncCurrentFeed();
 		});
+
+		const markAllReadBtn = header.createEl("div", {
+			cls: "clickable-icon",
+			attr: { "aria-label": "Mark all as read" },
+		});
+		setIcon(markAllReadBtn, "check-check");
+		markAllReadBtn.addEventListener("click", () => {
+			this.markAllAsRead();
+		});
+	}
+
+	markAllAsRead() {
+		if (!this.currentFeedUrl || this.posts.length === 0) {
+			return;
+		}
+		for (const post of this.posts) {
+			this.plugin.markPostRead(this.currentFeedUrl, post);
+		}
+		this.render();
 	}
 
 	renderEmptyState(container: HTMLElement) {
