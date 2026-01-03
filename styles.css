@@ -167,3 +167,64 @@
 	color: var(--text-accent);
 }
 
+.rho-reader-feed-header {
+	display: flex;
+	justify-content: center;
+	padding: 4px;
+}
+
+.rho-reader-feed-header .clickable-icon {
+	padding: 4px;
+}
+
+.rho-reader-feed-header .clickable-icon svg {
+	width: 16px;
+	height: 16px;
+}
+
+.rho-reader-sync-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 12px;
+	border-radius: 6px;
+	border: 1px solid var(--background-modifier-border);
+	background-color: var(--background-secondary);
+	color: var(--text-normal);
+	cursor: pointer;
+	font-size: var(--font-ui-smaller);
+	transition: background-color 0.15s ease;
+}
+
+.rho-reader-sync-btn:hover {
+	background-color: var(--background-modifier-hover);
+}
+
+.rho-reader-sync-btn svg {
+	width: 14px;
+	height: 14px;
+}
+
+.rho-reader-empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 48px 16px;
+	text-align: center;
+	flex: 1;
+	color: var(--text-muted);
+}
+
+.rho-reader-sync-btn--cta {
+	margin-top: 16px;
+	padding: 8px 16px;
+	background-color: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-color: var(--interactive-accent);
+}
+
+.rho-reader-sync-btn--cta:hover {
+	background-color: var(--interactive-accent-hover);
+}
+

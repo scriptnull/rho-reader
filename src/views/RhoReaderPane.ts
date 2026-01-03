@@ -3,6 +3,7 @@ import type RhoReader from "../main";
 import { defaultBaseContent } from "../settings/settings";
 import { syncAllRssFeeds } from "../commands/syncAllRssFeeds";
 import { importOpml } from "../commands/importOpml";
+import { updateFeedFrontmatter, findFileForFeedUrl } from "../commands/utils";
 
 export const VIEW_TYPE_RHO_READER = "rho-reader-pane";
 
@@ -144,13 +145,15 @@ export class RhoReaderPane extends ItemView {
 			return;
 		}
 
+		this.renderFeedHeader(container as HTMLElement);
+
 		if (this.isLoading) {
 			this.renderStatusMessage(container as HTMLElement, "Loading posts...", "rss");
 			return;
 		}
 
 		if (this.posts.length === 0) {
-			this.renderStatusMessage(container as HTMLElement, "No posts found", "inbox");
+			this.renderEmptyState(container as HTMLElement);
 			return;
 		}
 
@@ -280,6 +283,40 @@ export class RhoReaderPane extends ItemView {
 		});
 	}
 
+	renderFeedHeader(container: HTMLElement) {
+		const header = container.createEl("div", {
+			cls: "rho-reader-feed-header",
+		});
+		const syncBtn = header.createEl("div", {
+			cls: "clickable-icon",
+			attr: { "aria-label": "Sync feed" },
+		});
+		setIcon(syncBtn, "refresh-cw");
+		syncBtn.addEventListener("click", () => {
+			this.syncCurrentFeed();
+		});
+	}
+
+	renderEmptyState(container: HTMLElement) {
+		const wrapper = container.createEl("div", {
+			cls: "rho-reader-empty-state",
+		});
+		const iconEl = wrapper.createSpan({ cls: "rho-reader-status-icon" });
+		setIcon(iconEl, "inbox");
+		wrapper.createEl("div", {
+			cls: "rho-reader-status-text",
+			text: "No posts found",
+		});
+		const syncBtn = wrapper.createEl("button", {
+			cls: "rho-reader-sync-btn rho-reader-sync-btn--cta",
+		});
+		setIcon(syncBtn, "refresh-cw");
+		syncBtn.createSpan({ text: "Sync feed" });
+		syncBtn.addEventListener("click", () => {
+			this.syncCurrentFeed();
+		});
+	}
+
 	renderLanding(container: HTMLElement) {
 		const landing = container.createEl("div", {
 			cls: "rho-reader-landing",
@@ -342,5 +379,14 @@ export class RhoReaderPane extends ItemView {
 
 	async syncAllFeeds() {
 		await syncAllRssFeeds(this.plugin);
+	}
+
+	async syncCurrentFeed() {
+		if (!this.currentFeedUrl) return;
+		const file = findFileForFeedUrl(this.plugin, this.currentFeedUrl);
+		if (file) {
+			await updateFeedFrontmatter(this.plugin, this.currentFeedUrl, file);
+		}
+		await this.fetchFeed(this.currentFeedUrl);
 	}
 }
