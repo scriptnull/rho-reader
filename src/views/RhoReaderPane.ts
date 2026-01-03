@@ -145,12 +145,12 @@ export class RhoReaderPane extends ItemView {
 		}
 
 		if (this.isLoading) {
-			container.createEl("div", { text: "Loading..." });
+			this.renderStatusMessage(container as HTMLElement, "Loading posts...", "rss");
 			return;
 		}
 
 		if (this.posts.length === 0) {
-			container.createEl("div", { text: "No posts found" });
+			this.renderStatusMessage(container as HTMLElement, "No posts found", "inbox");
 			return;
 		}
 
@@ -266,6 +266,18 @@ export class RhoReaderPane extends ItemView {
 		} catch {
 			return dateString;
 		}
+	}
+
+	renderStatusMessage(container: HTMLElement, message: string, icon: string) {
+		const wrapper = container.createEl("div", {
+			cls: "rho-reader-status",
+		});
+		const iconEl = wrapper.createSpan({ cls: "rho-reader-status-icon" });
+		setIcon(iconEl, icon);
+		wrapper.createEl("div", {
+			cls: "rho-reader-status-text",
+			text: message,
+		});
 	}
 
 	renderLanding(container: HTMLElement) {
