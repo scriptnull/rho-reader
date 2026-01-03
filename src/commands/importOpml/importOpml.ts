@@ -25,6 +25,7 @@ export async function importOpml(plugin: RhoReader): Promise<void> {
 		const file = input.files?.[0];
 		if (!file) return;
 
+		plugin.setProcessing(true);
 		try {
 			const content = await file.text();
 			const feeds = parseOpml(content);
@@ -96,6 +97,8 @@ export async function importOpml(plugin: RhoReader): Promise<void> {
 		} catch (err) {
 			console.error("Failed to import OPML:", err);
 			new Notice("Failed to import OPML file.");
+		} finally {
+			plugin.setProcessing(false);
 		}
 	};
 

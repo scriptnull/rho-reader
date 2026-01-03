@@ -2,7 +2,7 @@ import type RhoReader from "../../main";
 import { updateFeedFrontmatter } from "../utils";
 
 export async function syncAllRssFeeds(plugin: RhoReader): Promise<void> {
-	plugin.setSyncing(true);
+	plugin.setProcessing(true);
 	try {
 		const files = plugin.app.vault.getMarkdownFiles();
 		for (const file of files) {
@@ -13,6 +13,6 @@ export async function syncAllRssFeeds(plugin: RhoReader): Promise<void> {
 			}
 		}
 	} finally {
-		plugin.setSyncing(false);
+		plugin.setProcessing(false);
 	}
 }

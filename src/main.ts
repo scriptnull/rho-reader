@@ -19,23 +19,26 @@ import {
 export default class RhoReader extends Plugin {
 	settings: RhoReaderSettings;
 	private saveSettingsTimeout: number | null = null;
-	isSyncing = false;
+	isProcessing = false;
 	private statusBarItem: HTMLElement | null = null;
 
-	setSyncing(syncing: boolean) {
-		this.isSyncing = syncing;
+	setProcessing(processing: boolean) {
+		this.isProcessing = processing;
 		this.updateStatusBar();
 	}
 
 	private updateStatusBar() {
 		if (!this.statusBarItem) return;
 		this.statusBarItem.empty();
-		if (this.isSyncing) {
-			this.statusBarItem.addClass("rho-reader-syncing");
-			setIcon(this.statusBarItem, "refresh-cw");
-			this.statusBarItem.setAttribute("aria-label", "Rho Reader: Syncing feeds...");
+		setIcon(this.statusBarItem, "rss");
+		if (this.isProcessing) {
+			this.statusBarItem.addClass("rho-reader-processing");
+			this.statusBarItem.removeClass("rho-reader-idle");
+			this.statusBarItem.setAttribute("aria-label", "Rho Reader: Processing...");
 		} else {
-			this.statusBarItem.removeClass("rho-reader-syncing");
+			this.statusBarItem.removeClass("rho-reader-processing");
+			this.statusBarItem.addClass("rho-reader-idle");
+			this.statusBarItem.setAttribute("aria-label", "Rho Reader");
 		}
 	}
 
@@ -69,6 +72,7 @@ export default class RhoReader extends Plugin {
 
 		this.statusBarItem = this.addStatusBarItem();
 		this.statusBarItem.addClass("rho-reader-status-bar");
+		this.updateStatusBar();
 
 		registerCommands(this);
 	}
