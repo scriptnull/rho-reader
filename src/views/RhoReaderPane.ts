@@ -1,8 +1,9 @@
 import { ItemView, Menu, WorkspaceLeaf, setIcon, requestUrl } from "obsidian";
-import { VIEW_TYPE_RHO_READER } from "../constants";
 import type RhoReader from "../main";
 import { defaultBaseContent } from "../settings/settings";
 import { syncAllRssFeeds } from "../commands/syncRssFeed";
+
+export const VIEW_TYPE_RHO_READER = "rho-reader-pane";
 
 export interface FeedPost {
 	title: string;

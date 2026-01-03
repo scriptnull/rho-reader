@@ -4,8 +4,11 @@ import {
 	DEFAULT_SETTINGS,
 	ReadStateByFeed,
 } from "./settings/settings";
-import { VIEW_TYPE_RHO_READER } from "./constants";
-import { RhoReaderPane, FeedPost } from "./views/RhoReaderPane";
+import {
+	VIEW_TYPE_RHO_READER,
+	RhoReaderPane,
+	FeedPost,
+} from "./views/RhoReaderPane";
 import { RhoReaderSettingTab } from "./settings/RhoReaderSettingTab";
 import { registerCommands } from "./commands/register";
 import {
