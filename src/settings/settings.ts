@@ -8,6 +8,7 @@ export interface ReadStateByFeed {
 }
 
 export interface RhoReaderSettings {
+	rhoFolder: string;
 	rssFeedBaseFile: string;
 	readState: {
 		[feedUrl: string]: ReadStateByFeed;
@@ -15,6 +16,7 @@ export interface RhoReaderSettings {
 }
 
 export const DEFAULT_SETTINGS: RhoReaderSettings = {
+	rhoFolder: "Rho",
 	rssFeedBaseFile: "Feeds.base",
 	readState: {},
 };

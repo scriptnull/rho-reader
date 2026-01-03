@@ -13,6 +13,18 @@ export class RhoReaderSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 
 		new Setting(containerEl)
+			.setName("Rho folder")
+			.setDesc("Folder where Rho Reader stores all its data.")
+			.addText((text) =>
+				text
+					.setValue(this.plugin.settings.rhoFolder)
+					.onChange(async (value) => {
+						this.plugin.settings.rhoFolder = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
 			.setName("RSS Feed Bases")
 			.setDesc("Obsidian Bases file used to organise the RSS feeds.")
 			.addText((text) =>
