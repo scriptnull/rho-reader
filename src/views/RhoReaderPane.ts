@@ -286,33 +286,14 @@ export class RhoReaderPane extends ItemView {
 			cls: "rho-reader-landing-actions",
 		});
 
-		const baseFilePath = this.plugin.settings.rssFeedBaseFile;
-		const baseFileExists =
-			!!this.plugin.app.vault.getAbstractFileByPath(baseFilePath);
-
-		if (!baseFileExists) {
-			const getStartedBtn = actions.createEl("button", {
-				cls: "rho-reader-landing-btn rho-reader-landing-btn--primary",
-			});
-			setIcon(getStartedBtn.createSpan(), "rocket");
-			getStartedBtn.createSpan({ text: "Get started" });
-			getStartedBtn.addEventListener("click", async () => {
-				await this.plugin.app.vault.adapter.write(
-					baseFilePath,
-					defaultBaseContent.trim()
-				);
-				this.plugin.app.workspace.openLinkText(baseFilePath, "", false);
-			});
-		} else {
-			const openFeedsBtn = actions.createEl("button", {
-				cls: "rho-reader-landing-btn rho-reader-landing-btn--primary",
-			});
-			setIcon(openFeedsBtn.createSpan(), "rss");
-			openFeedsBtn.createSpan({ text: "Open RSS Feeds" });
-			openFeedsBtn.addEventListener("click", () => {
-				this.plugin.app.workspace.openLinkText(baseFilePath, "", false);
-			});
-		}
+		const rssFeedReaderBtn = actions.createEl("button", {
+			cls: "rho-reader-landing-btn rho-reader-landing-btn--primary",
+		});
+		setIcon(rssFeedReaderBtn.createSpan(), "rss");
+		rssFeedReaderBtn.createSpan({ text: "RSS Feed Reader" });
+		rssFeedReaderBtn.addEventListener("click", () => {
+			(this.plugin.app as any).commands.executeCommandById("rho-reader:open-rss-feed-reader");
+		});
 
 		const syncBtn = actions.createEl("button", {
 			cls: "rho-reader-landing-btn",
