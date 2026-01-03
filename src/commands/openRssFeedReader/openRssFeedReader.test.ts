@@ -32,27 +32,27 @@ function createMockPlugin(
 
 describe("openRssFeedReader", () => {
 	it("should open the RSS feed base file from settings", async () => {
-		const plugin = createMockPlugin("Feeds.base", "Rho", true);
+		const plugin = createMockPlugin("Reader.base", "Rho", true);
 
 		await openRssFeedReader(plugin);
 
 		expect(plugin.app.vault.createFolder).toHaveBeenCalledWith("Rho");
 		expect(plugin.app.workspace.openLinkText).toHaveBeenCalledWith(
-			"Rho/Feeds.base",
+			"Rho/Reader.base",
 			"",
 			false
 		);
 	});
 
 	it("should create folder and base file if they don't exist", async () => {
-		const plugin = createMockPlugin("Feeds.base", "Rho", false);
+		const plugin = createMockPlugin("Reader.base", "Rho", false);
 
 		await openRssFeedReader(plugin);
 
 		expect(plugin.app.vault.createFolder).toHaveBeenCalledWith("Rho");
 		expect(plugin.app.vault.create).toHaveBeenCalled();
 		expect(plugin.app.workspace.openLinkText).toHaveBeenCalledWith(
-			"Rho/Feeds.base",
+			"Rho/Reader.base",
 			"",
 			false
 		);
