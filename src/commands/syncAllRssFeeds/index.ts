@@ -1,0 +1,1 @@
+export { syncAllRssFeeds } from "./syncAllRssFeeds";

@@ -1,5 +1,6 @@
 import type RhoReader from "../main";
-import { syncAllRssFeeds, syncRssFeed } from "./syncRssFeed";
+import { syncRssFeed } from "./syncRssFeed";
+import { syncAllRssFeeds } from "./syncAllRssFeeds";
 
 export function registerCommands(plugin: RhoReader): void {
 	plugin.addCommand({

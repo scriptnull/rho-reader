@@ -14,7 +14,7 @@ import { registerCommands } from "./commands/register";
 import {
 	findFileForFeedUrl,
 	updateFeedFrontmatter,
-} from "./commands/syncRssFeed";
+} from "./commands/utils";
 
 export default class RhoReader extends Plugin {
 	settings: RhoReaderSettings;

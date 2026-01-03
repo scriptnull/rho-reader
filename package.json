@@ -1,11 +1,14 @@
 {
-	"name": "obsidian-sample-plugin",
-	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"name": "rho-reader",
+	"version": "0.1.0",
+	"description": "A Reading Companion for Obsidian 🌸📚",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage",
 		"version": "node version-bump.mjs && git add manifest.json versions.json"
 	},
 	"keywords": [],
@@ -13,13 +16,16 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@types/js-yaml": "^4.0.9",
-		"@types/node": "^16.11.6",
+		"@types/node": "^20.19.27",
 		"@typescript-eslint/eslint-plugin": "5.29.0",
 		"@typescript-eslint/parser": "5.29.0",
+		"@vitest/coverage-v8": "^1.6.1",
 		"builtin-modules": "3.3.0",
 		"esbuild": "0.17.3",
+		"jsdom": "^27.4.0",
 		"obsidian": "latest",
 		"tslib": "2.4.0",
-		"typescript": "4.7.4"
+		"typescript": "4.7.4",
+		"vitest": "^1.6.1"
 	}
 }

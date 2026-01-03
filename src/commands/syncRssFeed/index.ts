@@ -1,0 +1,1 @@
+export { syncRssFeed } from "./syncRssFeed";
