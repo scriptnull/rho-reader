@@ -1,6 +1,7 @@
 import type RhoReader from "../main";
 import { syncRssFeed } from "./syncRssFeed";
 import { syncAllRssFeeds } from "./syncAllRssFeeds";
+import { openRssFeedReader } from "./openRssFeedReader";
 
 export function registerCommands(plugin: RhoReader): void {
 	plugin.addCommand({
@@ -13,5 +14,11 @@ export function registerCommands(plugin: RhoReader): void {
 		id: "sync-all-rss-feeds",
 		name: "Sync all RSS feeds",
 		callback: () => syncAllRssFeeds(plugin),
+	});
+
+	plugin.addCommand({
+		id: "open-rss-feed-reader",
+		name: "Open RSS Feed Reader",
+		callback: () => openRssFeedReader(plugin),
 	});
 }

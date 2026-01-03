@@ -295,8 +295,8 @@ export class RhoReaderPane extends ItemView {
 			const openFeedsBtn = actions.createEl("button", {
 				cls: "rho-reader-landing-btn rho-reader-landing-btn--primary",
 			});
-			setIcon(openFeedsBtn.createSpan(), "list");
-			openFeedsBtn.createSpan({ text: "Open feeds" });
+			setIcon(openFeedsBtn.createSpan(), "rss");
+			openFeedsBtn.createSpan({ text: "Open RSS Feeds" });
 			openFeedsBtn.addEventListener("click", () => {
 				this.plugin.app.workspace.openLinkText(baseFilePath, "", false);
 			});
@@ -306,7 +306,7 @@ export class RhoReaderPane extends ItemView {
 			cls: "rho-reader-landing-btn",
 		});
 		setIcon(syncBtn.createSpan(), "refresh-cw");
-		syncBtn.createSpan({ text: "Sync feeds" });
+		syncBtn.createSpan({ text: "Sync RSS Feeds" });
 		syncBtn.addEventListener("click", async () => {
 			await this.syncAllFeeds();
 		});
