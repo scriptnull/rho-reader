@@ -5,8 +5,8 @@ import { importOpml } from "./importOpml";
 
 export function registerCommands(plugin: RhoReader): void {
 	plugin.addCommand({
-		id: "sync-all-rss-feeds",
-		name: "Sync all RSS feeds",
+		id: "sync-rss-feeds",
+		name: "Sync RSS feeds",
 		callback: () => syncAllRssFeeds(plugin),
 	});
 
