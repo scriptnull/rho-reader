@@ -2,6 +2,7 @@ import { ItemView, Menu, WorkspaceLeaf, setIcon, requestUrl } from "obsidian";
 import type RhoReader from "../main";
 import { defaultBaseContent } from "../settings/settings";
 import { syncAllRssFeeds } from "../commands/syncAllRssFeeds";
+import { importOpml } from "../commands/importOpml";
 
 export const VIEW_TYPE_RHO_READER = "rho-reader-pane";
 
@@ -320,6 +321,15 @@ export class RhoReaderPane extends ItemView {
 		syncBtn.createSpan({ text: "Sync RSS Feeds" });
 		syncBtn.addEventListener("click", async () => {
 			await this.syncAllFeeds();
+		});
+
+		const importBtn = actions.createEl("button", {
+			cls: "rho-reader-landing-btn",
+		});
+		setIcon(importBtn.createSpan(), "file-up");
+		importBtn.createSpan({ text: "Import OPML" });
+		importBtn.addEventListener("click", () => {
+			importOpml(this.plugin);
 		});
 
 		const footer = landing.createEl("div", {
