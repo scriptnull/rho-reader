@@ -32,6 +32,7 @@ function createMockPlugin(
 				}),
 			},
 		},
+		setProcessing: vi.fn(),
 	} as unknown as RhoReader;
 }
 
