@@ -1,9 +1,9 @@
 {
 	"id": "rho-reader",
 	"name": "Rho Reader",
-	"version": "1.0.0",
+	"version": "0.2.0",
 	"minAppVersion": "0.15.0",
-	"description": "RSS Reader built on top of Obsidian Bases",
+	"description": "A Reading Companion for Obsidian 🌸📚",
 	"author": "Vishnu Bharathi",
 	"authorUrl": "https://vishnubharathi.codes/",
 	"fundingUrl": "",
