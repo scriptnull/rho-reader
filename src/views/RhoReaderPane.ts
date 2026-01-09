@@ -1,6 +1,5 @@
 import { ItemView, Menu, WorkspaceLeaf, setIcon, requestUrl } from "obsidian";
 import type RhoReader from "../main";
-import { defaultBaseContent } from "../settings/settings";
 import { syncAllRssFeeds } from "../commands/syncAllRssFeeds";
 import { importOpml } from "../commands/importOpml";
 import { updateFeedFrontmatter, findFileForFeedUrl } from "../commands/utils";
@@ -148,7 +147,11 @@ export class RhoReaderPane extends ItemView {
 		this.renderFeedHeader(container as HTMLElement);
 
 		if (this.isLoading) {
-			this.renderStatusMessage(container as HTMLElement, "Loading posts...", "rss");
+			this.renderStatusMessage(
+				container as HTMLElement,
+				"Loading posts...",
+				"rss"
+			);
 			return;
 		}
 
@@ -231,7 +234,7 @@ export class RhoReaderPane extends ItemView {
 				}
 
 				menu.showAtMouseEvent(evt);
-				});
+			});
 
 			const title = card.createEl("div", {
 				cls: "rho-reader-card-title",
@@ -358,16 +361,18 @@ export class RhoReaderPane extends ItemView {
 			cls: "rho-reader-landing-btn rho-reader-landing-btn--primary",
 		});
 		setIcon(rssFeedReaderBtn.createSpan(), "rss");
-		rssFeedReaderBtn.createSpan({ text: "RSS Feed Reader" });
+		rssFeedReaderBtn.createSpan({ text: "Feed Reader" });
 		rssFeedReaderBtn.addEventListener("click", () => {
-			(this.plugin.app as any).commands.executeCommandById("rho-reader:open-rss-feed-reader");
+			(this.plugin.app as any).commands.executeCommandById(
+				"rho-reader:open-rss-feed-reader"
+			);
 		});
 
 		const syncBtn = actions.createEl("button", {
 			cls: "rho-reader-landing-btn",
 		});
 		setIcon(syncBtn.createSpan(), "refresh-cw");
-		syncBtn.createSpan({ text: "Sync RSS Feeds" });
+		syncBtn.createSpan({ text: "Sync Feeds" });
 		syncBtn.addEventListener("click", async () => {
 			await this.syncAllFeeds();
 		});
