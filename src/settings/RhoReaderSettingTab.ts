@@ -12,6 +12,8 @@ export class RhoReaderSettingTab extends PluginSettingTab {
 	display(): void {
 		const { containerEl } = this;
 
+		containerEl.empty();
+
 		new Setting(containerEl)
 			.setName("Rho folder")
 			.setDesc("Folder where Rho Reader stores all its data.")
