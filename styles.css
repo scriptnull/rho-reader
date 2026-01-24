@@ -240,10 +240,20 @@
 
 .rho-reader-processing svg {
 	color: orange;
+	animation: rho-reader-pulse 1s ease-in-out infinite;
 }
 
 .rho-reader-idle svg {
 	color: green;
+}
+
+@keyframes rho-reader-pulse {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.3;
+	}
 }
 
 @keyframes rho-reader-spin {

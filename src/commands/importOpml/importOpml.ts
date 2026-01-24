@@ -6,6 +6,7 @@ import {
 	FeedToImport,
 	ImportPreview,
 } from "./ImportOpmlModal";
+import { VIEW_TYPE_RHO_READER } from "../../views/RhoReaderPane";
 
 function sanitizeFileName(name: string): string {
 	return name.replace(/[\\/:*?"<>|#^[\]]/g, "-").trim();
@@ -52,10 +53,25 @@ function categorizeFeeds(
 	return { toImport, alreadyExists };
 }
 
+async function openReaderPane(plugin: RhoReader): Promise<void> {
+	let leaf = plugin.app.workspace.getLeavesOfType(VIEW_TYPE_RHO_READER)[0];
+	if (!leaf) {
+		const rightLeaf = plugin.app.workspace.getRightLeaf(false);
+		if (rightLeaf) {
+			await rightLeaf.setViewState({ type: VIEW_TYPE_RHO_READER });
+			leaf = rightLeaf;
+		}
+	}
+	if (leaf) {
+		plugin.app.workspace.revealLeaf(leaf);
+	}
+}
+
 async function performImport(
 	plugin: RhoReader,
 	feeds: FeedToImport[],
 ): Promise<void> {
+	await openReaderPane(plugin);
 	plugin.setProcessing(true);
 	try {
 		const feedsFolder = `${plugin.settings.rhoFolder}/Feeds`;
