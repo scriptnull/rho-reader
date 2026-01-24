@@ -255,3 +255,142 @@
 	}
 }
 
+.rho-import-modal {
+	padding: 16px;
+}
+
+.rho-import-summary {
+	margin-bottom: 16px;
+	font-size: var(--font-ui-small);
+	color: var(--text-muted);
+}
+
+.rho-import-summary-new {
+	color: var(--text-success);
+}
+
+.rho-import-summary-existing {
+	color: var(--text-muted);
+}
+
+.rho-import-tabs {
+	display: flex;
+	gap: 4px;
+	margin-bottom: 12px;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.rho-import-tab {
+	padding: 8px 16px;
+	background: none;
+	border: none;
+	border-bottom: 2px solid transparent;
+	color: var(--text-muted);
+	cursor: pointer;
+	font-size: var(--font-ui-small);
+	transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.rho-import-tab:hover {
+	color: var(--text-normal);
+}
+
+.rho-import-tab--active {
+	color: var(--text-accent);
+	border-bottom-color: var(--text-accent);
+}
+
+.rho-import-list-container {
+	max-height: 300px;
+	overflow-y: auto;
+	margin-bottom: 16px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+}
+
+.rho-import-feed-list {
+	padding: 8px;
+}
+
+.rho-import-feed-item {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 8px;
+	border-radius: 4px;
+}
+
+.rho-import-feed-item:hover {
+	background-color: var(--background-secondary);
+}
+
+.rho-import-feed-icon {
+	flex-shrink: 0;
+	margin-top: 2px;
+}
+
+.rho-import-feed-icon svg {
+	width: 16px;
+	height: 16px;
+	color: var(--text-muted);
+}
+
+.rho-import-feed-info {
+	flex: 1;
+	min-width: 0;
+}
+
+.rho-import-feed-title {
+	font-weight: 500;
+	margin-bottom: 2px;
+	word-break: break-word;
+}
+
+.rho-import-feed-url {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	word-break: break-all;
+}
+
+.rho-import-empty {
+	padding: 24px;
+	text-align: center;
+	color: var(--text-muted);
+}
+
+.rho-import-buttons {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+.rho-import-btn {
+	padding: 8px 16px;
+	border-radius: 6px;
+	border: 1px solid var(--background-modifier-border);
+	background-color: var(--background-secondary);
+	color: var(--text-normal);
+	cursor: pointer;
+	font-size: var(--font-ui-small);
+	transition: background-color 0.15s ease;
+}
+
+.rho-import-btn:hover {
+	background-color: var(--background-modifier-hover);
+}
+
+.rho-import-btn--primary {
+	background-color: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-color: var(--interactive-accent);
+}
+
+.rho-import-btn--primary:hover:not(:disabled) {
+	background-color: var(--interactive-accent-hover);
+}
+
+.rho-import-btn--primary:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
