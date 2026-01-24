@@ -7,6 +7,7 @@ import {
 	ImportPreview,
 } from "./ImportOpmlModal";
 import { VIEW_TYPE_RHO_READER } from "../../views/RhoReaderPane";
+import { openRssFeedReader } from "../openRssFeedReader/openRssFeedReader";
 
 function sanitizeFileName(name: string): string {
 	return name.replace(/[\\/:*?"<>|#^[\]]/g, "-").trim();
@@ -71,6 +72,7 @@ async function performImport(
 	plugin: RhoReader,
 	feeds: FeedToImport[],
 ): Promise<void> {
+	await openRssFeedReader(plugin);
 	await openReaderPane(plugin);
 	plugin.setProcessing(true);
 	try {
