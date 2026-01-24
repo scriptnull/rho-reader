@@ -72,6 +72,7 @@ export default class RhoReader extends Plugin {
 
 		this.statusBarItem = this.addStatusBarItem();
 		this.statusBarItem.addClass("rho-reader-status-bar");
+		this.statusBarItem.setAttribute("data-tooltip-position", "top");
 		this.updateStatusBar();
 
 		registerCommands(this);
