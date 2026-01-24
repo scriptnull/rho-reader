@@ -20,10 +20,12 @@ export default class RhoReader extends Plugin {
 	settings: RhoReaderSettings;
 	private saveSettingsTimeout: number | null = null;
 	isProcessing = false;
+	private processingText = "";
 	private statusBarItem: HTMLElement | null = null;
 
-	setProcessing(processing: boolean) {
+	setProcessing(processing: boolean, text = "") {
 		this.isProcessing = processing;
+		this.processingText = text;
 		this.updateStatusBar();
 	}
 
@@ -34,7 +36,10 @@ export default class RhoReader extends Plugin {
 		if (this.isProcessing) {
 			this.statusBarItem.addClass("rho-reader-processing");
 			this.statusBarItem.removeClass("rho-reader-idle");
-			this.statusBarItem.setAttribute("aria-label", "Rho Reader: Processing...");
+			const label = this.processingText
+				? `Rho Reader: ${this.processingText}...`
+				: "Rho Reader: Processing...";
+			this.statusBarItem.setAttribute("aria-label", label);
 		} else {
 			this.statusBarItem.removeClass("rho-reader-processing");
 			this.statusBarItem.addClass("rho-reader-idle");

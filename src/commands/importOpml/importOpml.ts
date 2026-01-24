@@ -74,7 +74,7 @@ async function performImport(
 ): Promise<void> {
 	await openRssFeedReader(plugin);
 	await openReaderPane(plugin);
-	plugin.setProcessing(true);
+	plugin.setProcessing(true, "Importing OPML");
 	try {
 		const feedsFolder = `${plugin.settings.rhoFolder}/Feeds`;
 		await ensureFolderExists(plugin, plugin.settings.rhoFolder);
