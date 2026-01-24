@@ -9,7 +9,7 @@ import {
 import { VIEW_TYPE_RHO_READER } from "../../views/RhoReaderPane";
 import { openRssFeedReader } from "../openRssFeedReader/openRssFeedReader";
 
-function sanitizeFileName(name: string): string {
+export function sanitizeFileName(name: string): string {
 	return name.replace(/[\\/:*?"<>|#^[\]]/g, "-").trim();
 }
 
@@ -23,7 +23,7 @@ async function ensureFolderExists(
 	}
 }
 
-function getExistingFeedUrls(plugin: RhoReader): Set<string> {
+export function getExistingFeedUrls(plugin: RhoReader): Set<string> {
 	const existingFeedUrls = new Set<string>();
 	const files = plugin.app.vault.getMarkdownFiles();
 	for (const f of files) {
@@ -36,7 +36,7 @@ function getExistingFeedUrls(plugin: RhoReader): Set<string> {
 	return existingFeedUrls;
 }
 
-function categorizeFeeds(
+export function categorizeFeeds(
 	feeds: FeedToImport[],
 	existingUrls: Set<string>,
 ): ImportPreview {

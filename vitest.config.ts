@@ -10,5 +10,8 @@ export default defineConfig({
 			include: ["src/**/*.ts"],
 			exclude: ["src/**/*.test.ts"],
 		},
+		alias: {
+			obsidian: new URL("./__mocks__/obsidian.ts", import.meta.url).pathname,
+		},
 	},
 });
