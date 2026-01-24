@@ -91,7 +91,7 @@ async function performImport(
 			if (feed.htmlUrl) {
 				frontmatter.push(`feed_site: "${feed.htmlUrl}"`);
 			}
-			frontmatter.push("---", "", `# ${feed.title}`);
+			frontmatter.push("---");
 			const fileContent = frontmatter.join("\n");
 
 			let filePath = `${feedsFolder}/${fileName}`;
