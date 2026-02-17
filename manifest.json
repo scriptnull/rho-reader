@@ -1,7 +1,7 @@
 {
 	"id": "rho-reader",
 	"name": "Rho Reader",
-	"version": "0.2.0",
+	"version": "0.3.1",
 	"minAppVersion": "0.15.0",
 	"description": "A Reading Companion for Obsidian 🌸📚",
 	"author": "Vishnu Bharathi",
