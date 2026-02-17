@@ -14,11 +14,15 @@ export async function updateFeedFrontmatter(
 		const posts = parseRssFeedItems(text, feedUrl);
 		const allPosts = posts.length;
 
+		if (allPosts === 0) {
+			return;
+		}
+
 		const readStateForFeed = plugin.settings.readState[feedUrl] || {};
 		const readPosts = Object.values(readStateForFeed).filter(
 			(s) => s.read
 		).length;
-		const unreadPosts = allPosts - readPosts;
+		const unreadPosts = Math.max(0, allPosts - readPosts);
 
 		const fileContent = await plugin.app.vault.read(file);
 		let newContent = fileContent;
