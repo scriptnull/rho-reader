@@ -121,7 +121,10 @@ export async function setPostReadState(
 		const endFm = content.indexOf("---", 3);
 		if (endFm === -1) return;
 		const fmRaw = content.substring(3, endFm).trim();
-		const body = content.substring(endFm + 3);
+		const afterClosing = content.substring(endFm + 3);
+		const body = afterClosing.startsWith("\n")
+			? afterClosing.substring(1)
+			: afterClosing;
 		let fm: Record<string, unknown> = {};
 		try {
 			fm = (yaml.load(fmRaw) as Record<string, unknown>) || {};
@@ -184,7 +187,10 @@ export async function updateFeedCountsFromFiles(
 			const endFm = content.indexOf("---", 3);
 			if (endFm !== -1) {
 				const fmRaw = content.substring(3, endFm).trim();
-				const body = content.substring(endFm + 3);
+				const afterClosing = content.substring(endFm + 3);
+				const body = afterClosing.startsWith("\n")
+					? afterClosing.substring(1)
+					: afterClosing;
 				let fm: Record<string, unknown> = {};
 				try {
 					fm = (yaml.load(fmRaw) as Record<string, unknown>) || {};
