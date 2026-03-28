@@ -2,6 +2,7 @@ import type RhoReader from "../main";
 import { syncAllRssFeeds } from "./syncAllRssFeeds";
 import { openRssFeedReader } from "./openRssFeedReader";
 import { importOpml } from "./importOpml";
+import { exportOpml } from "./exportOpml/exportOpml";
 
 export function registerCommands(plugin: RhoReader): void {
 	plugin.addCommand({
@@ -20,5 +21,11 @@ export function registerCommands(plugin: RhoReader): void {
 		id: "import-opml",
 		name: "Import OPML",
 		callback: () => importOpml(plugin),
+	});
+
+	plugin.addCommand({
+		id: "export-opml",
+		name: "Export OPML",
+		callback: () => exportOpml(plugin),
 	});
 }
