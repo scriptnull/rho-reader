@@ -1,6 +1,21 @@
 import type { FeedPost } from "../../types";
+import { parseJsonFeedItems } from "./parseJsonFeedItems";
 
 export function parseRssFeedItems(text: string, feedUrl: string): FeedPost[] {
+	// Detect JSON Feed format before attempting XML parsing
+	try {
+		const json = JSON.parse(text);
+		if (
+			json &&
+			typeof json.version === "string" &&
+			json.version.startsWith("https://jsonfeed.org/")
+		) {
+			return parseJsonFeedItems(json);
+		}
+	} catch {
+		// Not JSON, fall through to XML parsing
+	}
+
 	const parser = new DOMParser();
 
 	let xmlDoc = parser.parseFromString(text, "application/xml");

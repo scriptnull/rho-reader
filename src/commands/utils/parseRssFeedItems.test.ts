@@ -81,6 +81,46 @@ describe("parseRssFeedItems", () => {
 		expect(posts[0].title).toBe("Untitled");
 	});
 
+	it("should parse JSON Feed format", () => {
+		const jsonFeed = JSON.stringify({
+			version: "https://jsonfeed.org/version/1.1",
+			title: "JSON Feed",
+			items: [
+				{
+					id: "json-1",
+					url: "https://example.com/json-post",
+					title: "JSON Post",
+					content_text: "Hello from JSON Feed",
+					date_published: "2025-06-01T00:00:00Z",
+				},
+			],
+		});
+
+		const posts = parseRssFeedItems(jsonFeed, "https://example.com/feed.json");
+		expect(posts).toHaveLength(1);
+		expect(posts[0].title).toBe("JSON Post");
+		expect(posts[0].link).toBe("https://example.com/json-post");
+		expect(posts[0].guid).toBe("json-1");
+		expect(posts[0].description).toBe("Hello from JSON Feed");
+	});
+
+	it("should handle JSON Feed version 1.0", () => {
+		const jsonFeed = JSON.stringify({
+			version: "https://jsonfeed.org/version/1",
+			items: [{ id: "v1", title: "Version 1 Post" }],
+		});
+
+		const posts = parseRssFeedItems(jsonFeed, "https://example.com/feed.json");
+		expect(posts).toHaveLength(1);
+		expect(posts[0].title).toBe("Version 1 Post");
+	});
+
+	it("should fall through to XML for JSON without jsonfeed version", () => {
+		const notAFeed = JSON.stringify({ foo: "bar" });
+		const posts = parseRssFeedItems(notAFeed, "https://example.com/api");
+		expect(posts).toHaveLength(0);
+	});
+
 	it("should extract link from href attribute for Atom entries", () => {
 		const atomXml = `<?xml version="1.0" encoding="UTF-8"?>
 			<feed xmlns="http://www.w3.org/2005/Atom">
