@@ -1,0 +1,38 @@
+{
+  "name": "rho-reader",
+  "version": "0.1.0",
+  "description": "LLM-powered reading assistant for the Rho Reader Obsidian plugin",
+  "author": {
+    "name": "scriptnull",
+    "url": "https://github.com/scriptnull"
+  },
+  "homepage": "https://github.com/scriptnull/rho-reader",
+  "repository": "https://github.com/scriptnull/rho-reader",
+  "license": "MIT",
+  "keywords": [
+    "obsidian",
+    "rss",
+    "reading",
+    "tagging",
+    "recommendations"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Rho Reader",
+    "shortDescription": "Tag and recommend posts from your Rho Reader vault.",
+    "longDescription": "A Codex plugin companion for Rho Reader that adds skills for tagging RSS posts, deep-tagging from full article content, and generating personalized recommendations from your vault.",
+    "developerName": "scriptnull",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/scriptnull/rho-reader",
+    "defaultPrompt": [
+      "Tag my untagged Rho Reader posts.",
+      "Deep-tag unread posts from a specific author.",
+      "Recommend 5 unread posts about Go concurrency."
+    ],
+    "brandColor": "#2B6CB0"
+  }
+}
