@@ -1,0 +1,12 @@
+{
+  "name": "rho-reader",
+  "owner": { "name": "scriptnull" },
+  "plugins": [
+    {
+      "name": "rho-reader",
+      "source": ".",
+      "description": "LLM-powered reading assistant for Rho Reader",
+      "version": "0.1.0"
+    }
+  ]
+}

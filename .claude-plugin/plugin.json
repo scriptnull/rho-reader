@@ -1,0 +1,6 @@
+{
+  "name": "rho-reader",
+  "description": "LLM-powered reading assistant for the Rho Reader Obsidian plugin — tag, categorize, and get personalized recommendations for your RSS feeds",
+  "version": "0.1.0",
+  "author": { "name": "scriptnull" }
+}
