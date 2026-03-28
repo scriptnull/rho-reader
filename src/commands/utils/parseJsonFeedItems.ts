@@ -1,4 +1,5 @@
 import type { FeedPost } from "../../types";
+import { resolveUrl } from "./resolveUrl";
 
 interface JsonFeedItem {
 	id?: string;
@@ -18,14 +19,14 @@ export interface JsonFeed {
 	items?: JsonFeedItem[];
 }
 
-export function parseJsonFeedItems(feed: JsonFeed): FeedPost[] {
+export function parseJsonFeedItems(feed: JsonFeed, feedUrl?: string): FeedPost[] {
 	if (!feed.items || !Array.isArray(feed.items)) {
 		return [];
 	}
 
 	return feed.items.map((item) => {
 		const title = item.title?.trim() || "Untitled";
-		const link = item.url?.trim() || "";
+		const link = resolveUrl(item.url?.trim() || "", feedUrl ?? "");
 		const pubDate = item.date_published?.trim() || "";
 		const guid = item.id?.trim() || "";
 		const description =

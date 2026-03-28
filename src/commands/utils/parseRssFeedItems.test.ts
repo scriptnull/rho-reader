@@ -121,6 +121,42 @@ describe("parseRssFeedItems", () => {
 		expect(posts).toHaveLength(0);
 	});
 
+	it("should resolve relative links in RSS items", () => {
+		const rssXml = `<?xml version="1.0" encoding="UTF-8"?>
+			<rss version="2.0">
+				<channel>
+					<item><title>Relative</title><link>/blog/post-1</link><guid>r-1</guid></item>
+				</channel>
+			</rss>`;
+
+		const posts = parseRssFeedItems(rssXml, "https://example.com/feed.xml");
+		expect(posts[0].link).toBe("https://example.com/blog/post-1");
+	});
+
+	it("should resolve relative href in Atom entries", () => {
+		const atomXml = `<?xml version="1.0" encoding="UTF-8"?>
+			<feed xmlns="http://www.w3.org/2005/Atom">
+				<entry>
+					<title>Relative Atom</title>
+					<link href="/atom/post-1"/>
+					<id>ra-1</id>
+				</entry>
+			</feed>`;
+
+		const posts = parseRssFeedItems(atomXml, "https://example.com/atom.xml");
+		expect(posts[0].link).toBe("https://example.com/atom/post-1");
+	});
+
+	it("should resolve relative links in JSON Feed via parseRssFeedItems", () => {
+		const jsonFeed = JSON.stringify({
+			version: "https://jsonfeed.org/version/1.1",
+			items: [{ id: "j-1", url: "/json/post-1", title: "Relative JSON" }],
+		});
+
+		const posts = parseRssFeedItems(jsonFeed, "https://example.com/feed.json");
+		expect(posts[0].link).toBe("https://example.com/json/post-1");
+	});
+
 	it("should extract link from href attribute for Atom entries", () => {
 		const atomXml = `<?xml version="1.0" encoding="UTF-8"?>
 			<feed xmlns="http://www.w3.org/2005/Atom">

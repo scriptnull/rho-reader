@@ -1,5 +1,6 @@
 import type { FeedPost } from "../../types";
 import { parseJsonFeedItems } from "./parseJsonFeedItems";
+import { resolveUrl } from "./resolveUrl";
 
 export function parseRssFeedItems(text: string, feedUrl: string): FeedPost[] {
 	// Detect JSON Feed format before attempting XML parsing
@@ -10,7 +11,7 @@ export function parseRssFeedItems(text: string, feedUrl: string): FeedPost[] {
 			typeof json.version === "string" &&
 			json.version.startsWith("https://jsonfeed.org/")
 		) {
-			return parseJsonFeedItems(json);
+			return parseJsonFeedItems(json, feedUrl);
 		}
 	} catch {
 		// Not JSON, fall through to XML parsing
@@ -66,6 +67,7 @@ export function parseRssFeedItems(text: string, feedUrl: string): FeedPost[] {
 				linkEl.getAttribute("href") ||
 				"";
 		}
+		link = resolveUrl(link, feedUrl);
 
 		const pubDate =
 			post.querySelector("pubDate")?.textContent?.trim() ||

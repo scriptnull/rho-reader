@@ -91,6 +91,26 @@ describe("parseJsonFeedItems", () => {
 		expect(parseJsonFeedItems(feed)[0].description).toBe("Just a summary");
 	});
 
+	it("should resolve relative URLs when feedUrl is provided", () => {
+		const feed: JsonFeed = {
+			version: "https://jsonfeed.org/version/1.1",
+			items: [{ id: "1", url: "/posts/hello", title: "Hello" }],
+		};
+
+		const posts = parseJsonFeedItems(feed, "https://example.com/feed.json");
+		expect(posts[0].link).toBe("https://example.com/posts/hello");
+	});
+
+	it("should leave relative URLs as-is when feedUrl is not provided", () => {
+		const feed: JsonFeed = {
+			version: "https://jsonfeed.org/version/1.1",
+			items: [{ id: "1", url: "/posts/hello", title: "Hello" }],
+		};
+
+		const posts = parseJsonFeedItems(feed);
+		expect(posts[0].link).toBe("/posts/hello");
+	});
+
 	it("should return empty array for missing items", () => {
 		const feed = { version: "https://jsonfeed.org/version/1.1" } as JsonFeed;
 		expect(parseJsonFeedItems(feed)).toEqual([]);
