@@ -77,6 +77,7 @@ export async function createPostFile(
 		rho_link: post.link,
 		rho_pub_date: post.pubDate,
 		rho_guid: post.guid,
+		rho_description: post.description ?? "",
 		read: false,
 		read_at: 0,
 		rho_tags: [],

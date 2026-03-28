@@ -62,6 +62,12 @@ export function parseRssFeedItems(text: string, feedUrl: string): FeedPost[] {
 			post.querySelector("id")?.textContent?.trim() ||
 			"";
 
-		return { title, link, pubDate, guid };
+		const description =
+			post.querySelector("description")?.textContent?.trim() ||
+			post.querySelector("summary")?.textContent?.trim() ||
+			post.querySelector("content")?.textContent?.trim() ||
+			"";
+
+		return { title, link, pubDate, guid, description };
 	});
 }
