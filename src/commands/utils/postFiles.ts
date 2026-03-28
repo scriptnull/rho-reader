@@ -81,10 +81,7 @@ export async function createPostFile(
 		read_at: 0,
 	};
 
-	const body = post.link
-		? `# ${post.title}\n\n[Read original](${post.link})\n`
-		: `# ${post.title}\n`;
-	const content = `---\n${yaml.dump(fm)}---\n${body}`;
+	const content = `---\n${yaml.dump(fm)}---\n`;
 
 	try {
 		return await plugin.app.vault.create(filePath, content);
