@@ -3,7 +3,7 @@ import type RhoReader from "../main";
 import type { FeedPost } from "../types";
 import { syncAllRssFeeds } from "../commands/syncAllRssFeeds";
 import { importOpml } from "../commands/importOpml";
-import { updateFeedFrontmatter, findFileForFeedUrl, getPostsForFeed } from "../commands/utils";
+import { updateFeedFrontmatter, findFileForFeedUrl, getPostsForFeed, findExistingPostFile, getPostKey } from "../commands/utils";
 
 export const VIEW_TYPE_RHO_READER = "rho-reader-pane";
 
@@ -150,6 +150,24 @@ export class RhoReaderPane extends ItemView {
 							})
 					);
 				}
+
+				menu.addItem((item) =>
+					item
+						.setTitle("Take notes")
+						.setIcon("pencil")
+						.onClick(async () => {
+							const postKey = getPostKey(post);
+							const file = findExistingPostFile(
+								this.plugin,
+								this.currentFeedUrl!,
+								postKey
+							);
+							if (file) {
+								const leaf = this.app.workspace.getLeaf(false);
+								await leaf.openFile(file);
+							}
+						})
+				);
 
 				if (post.link) {
 					menu.addItem((item) =>
