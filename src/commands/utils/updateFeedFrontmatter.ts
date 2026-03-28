@@ -2,6 +2,12 @@ import * as yaml from "js-yaml";
 import { TFile, requestUrl } from "obsidian";
 import type RhoReader from "../../main";
 import { parseRssFeedItems } from "./parseRssFeedItems";
+import {
+	createPostFilesForFeed,
+	countPostsForFeed,
+	findExistingPostFile,
+	setPostReadState,
+} from "./postFiles";
 
 export async function updateFeedFrontmatter(
 	plugin: RhoReader,
@@ -12,18 +18,44 @@ export async function updateFeedFrontmatter(
 		const response = await requestUrl({ url: feedUrl });
 		const text = response.text;
 		const posts = parseRssFeedItems(text, feedUrl);
-		const allPosts = posts.length;
 
-		if (allPosts === 0) {
+		if (posts.length === 0) {
 			return;
 		}
 
-		const readStateForFeed = plugin.settings.readState[feedUrl] || {};
-		const readPosts = Object.values(readStateForFeed).filter(
-			(s) => s.read
-		).length;
-		const unreadPosts = Math.max(0, allPosts - readPosts);
+		// Create post files for new posts
+		const feedTitle = file.basename;
+		await createPostFilesForFeed(plugin, feedUrl, feedTitle, posts);
 
+		// Migrate existing readState entries for this feed
+		if (
+			!plugin.settings.readStateMigrated &&
+			plugin.settings.readState?.[feedUrl]
+		) {
+			const readStateForFeed = plugin.settings.readState[feedUrl];
+			for (const [postKey, state] of Object.entries(readStateForFeed)) {
+				if (!state.read) continue;
+				const postFile = findExistingPostFile(plugin, feedUrl, postKey);
+				if (postFile) {
+					await setPostReadState(
+						plugin,
+						postFile,
+						true,
+						state.readAt
+					);
+				}
+			}
+			delete plugin.settings.readState[feedUrl];
+			if (Object.keys(plugin.settings.readState).length === 0) {
+				plugin.settings.readStateMigrated = true;
+			}
+			await plugin.saveSettings();
+		}
+
+		// Count from post files
+		const { total, unread } = countPostsForFeed(plugin, feedUrl);
+
+		// Update feed file frontmatter with new counts
 		const fileContent = await plugin.app.vault.read(file);
 		let newContent = fileContent;
 		if (fileContent.startsWith("---")) {
@@ -43,8 +75,8 @@ export async function updateFeedFrontmatter(
 				} catch (e) {
 					console.error("Failed to parse frontmatter YAML:", e);
 				}
-				frontmatterObj.rho_unread_posts = unreadPosts;
-				frontmatterObj.rho_all_posts = allPosts;
+				frontmatterObj.rho_unread_posts = unread;
+				frontmatterObj.rho_all_posts = total;
 				const updatedFrontmatter = `---\n${yaml.dump(
 					frontmatterObj
 				)}---\n`;
@@ -52,7 +84,7 @@ export async function updateFeedFrontmatter(
 			}
 		} else {
 			newContent =
-				`---\nrho_unread_posts: ${unreadPosts}\nrho_all_posts: ${allPosts}\n---\n` +
+				`---\nrho_unread_posts: ${unread}\nrho_all_posts: ${total}\n---\n` +
 				fileContent;
 		}
 		await plugin.app.vault.modify(file, newContent);
