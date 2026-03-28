@@ -79,6 +79,7 @@ export async function createPostFile(
 		rho_guid: post.guid,
 		read: false,
 		read_at: 0,
+		rho_tags: [],
 	};
 
 	const content = `---\n${yaml.dump(fm)}---\n`;
@@ -169,6 +170,61 @@ export function countPostsForFeed(
 		}
 	}
 	return { total, unread };
+}
+
+export async function setPostTags(
+	plugin: RhoReader,
+	file: TFile,
+	tags: string[]
+): Promise<void> {
+	try {
+		const content = await plugin.app.vault.read(file);
+		if (!content.startsWith("---")) return;
+		const endFm = content.indexOf("---", 3);
+		if (endFm === -1) return;
+		const fmRaw = content.substring(3, endFm).trim();
+		const afterClosing = content.substring(endFm + 3);
+		const body = afterClosing.startsWith("\n")
+			? afterClosing.substring(1)
+			: afterClosing;
+		let fm: Record<string, unknown> = {};
+		try {
+			fm = (yaml.load(fmRaw) as Record<string, unknown>) || {};
+		} catch (e) {
+			console.error(
+				"[Rho Reader] Failed to parse post file frontmatter:",
+				e
+			);
+			return;
+		}
+		fm.rho_tags = tags;
+		await plugin.app.vault.modify(
+			file,
+			`---\n${yaml.dump(fm)}---\n${body}`
+		);
+	} catch (err) {
+		console.error("[Rho Reader] Failed to set post tags:", err);
+	}
+}
+
+export function getAllTagsForFeed(
+	plugin: RhoReader,
+	feedUrl: string
+): string[] {
+	const tagSet = new Set<string>();
+	const files = plugin.app.vault.getMarkdownFiles();
+	for (const file of files) {
+		const cache = plugin.app.metadataCache.getFileCache(file);
+		const fm = cache?.frontmatter;
+		if (fm?.rho_feed_url === feedUrl && Array.isArray(fm?.rho_tags)) {
+			for (const tag of fm.rho_tags) {
+				if (typeof tag === "string" && tag.length > 0) {
+					tagSet.add(tag);
+				}
+			}
+		}
+	}
+	return Array.from(tagSet).sort();
 }
 
 export async function updateFeedCountsFromFiles(

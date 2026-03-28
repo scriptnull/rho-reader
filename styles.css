@@ -57,6 +57,21 @@
 	color: var(--text-accent);
 }
 
+.rho-reader-card-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin-top: 4px;
+}
+
+.rho-reader-tag {
+	font-size: 0.7em;
+	padding: 1px 6px;
+	border-radius: 10px;
+	background: var(--background-modifier-border);
+	color: var(--text-muted);
+}
+
 .rho-reader-card--read {
 	opacity: 0.6;
 }

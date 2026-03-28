@@ -1,9 +1,9 @@
-import { ItemView, Menu, WorkspaceLeaf, setIcon } from "obsidian";
+import { App, ItemView, Menu, SuggestModal, WorkspaceLeaf, setIcon } from "obsidian";
 import type RhoReader from "../main";
 import type { FeedPost } from "../types";
 import { syncAllRssFeeds } from "../commands/syncAllRssFeeds";
 import { importOpml } from "../commands/importOpml";
-import { updateFeedFrontmatter, findFileForFeedUrl, getPostsForFeed, findExistingPostFile, getPostKey } from "../commands/utils";
+import { updateFeedFrontmatter, findFileForFeedUrl, getPostsForFeed, findExistingPostFile, getPostKey, setPostTags, getAllTagsForFeed } from "../commands/utils";
 
 export const VIEW_TYPE_RHO_READER = "rho-reader-pane";
 
@@ -54,6 +54,7 @@ export class RhoReaderPane extends ItemView {
 				pubDate: fm?.rho_pub_date || "",
 				guid: fm?.rho_guid || "",
 				read: fm?.read === true,
+				tags: Array.isArray(fm?.rho_tags) ? (fm!.rho_tags as string[]) : [],
 			};
 		});
 		posts.sort((a, b) => {
@@ -180,6 +181,73 @@ export class RhoReaderPane extends ItemView {
 					);
 				}
 
+				menu.addItem((item) =>
+					item
+						.setTitle("Add tag")
+						.setIcon("tag")
+						.onClick(() => {
+							const existingTags = getAllTagsForFeed(
+								this.plugin,
+								this.currentFeedUrl!
+							);
+							new AddTagModal(
+								this.app,
+								existingTags,
+								post.tags || [],
+								async (tag) => {
+									const currentTags = post.tags || [];
+									if (currentTags.includes(tag)) return;
+									const newTags = [...currentTags, tag];
+									const postKey = getPostKey(post);
+									const file = findExistingPostFile(
+										this.plugin,
+										this.currentFeedUrl!,
+										postKey
+									);
+									if (file) {
+										await setPostTags(this.plugin, file, newTags);
+									}
+									post.tags = newTags;
+									this.render();
+								}
+							).open();
+						})
+				);
+
+				if (post.tags && post.tags.length > 0) {
+					menu.addItem((item) =>
+						item
+							.setTitle("Remove tag")
+							.setIcon("x-circle")
+							.onClick(() => {
+								new RemoveTagModal(
+									this.app,
+									post.tags!,
+									async (tag) => {
+										const newTags = (post.tags || []).filter(
+											(t) => t !== tag
+										);
+										const postKey = getPostKey(post);
+										const file = findExistingPostFile(
+											this.plugin,
+											this.currentFeedUrl!,
+											postKey
+										);
+										if (file) {
+											await setPostTags(
+												this.plugin,
+												file,
+												newTags
+											);
+										}
+										post.tags = newTags;
+										this.render();
+									}
+								).open();
+							})
+					);
+				}
+
 				menu.showAtMouseEvent(evt);
 			});
 
@@ -207,6 +275,18 @@ export class RhoReaderPane extends ItemView {
 					});
 				} catch {
 					// invalid URL, skip hostname display
+				}
+			}
+
+			if (post.tags && post.tags.length > 0) {
+				const tagsRow = card.createEl("div", {
+					cls: "rho-reader-card-tags",
+				});
+				for (const tag of post.tags) {
+					tagsRow.createEl("span", {
+						cls: "rho-reader-tag",
+						text: tag,
+					});
 				}
 			}
 		}
@@ -371,5 +451,68 @@ export class RhoReaderPane extends ItemView {
 		this.isLoading = false;
 		this.loadPostsFromFiles(this.currentFeedUrl);
 		this.render();
+	}
+}
+
+class AddTagModal extends SuggestModal<string> {
+	private allTags: string[];
+	private currentTags: string[];
+	private onChoose: (tag: string) => void;
+
+	constructor(
+		app: App,
+		allTags: string[],
+		currentTags: string[],
+		onChoose: (tag: string) => void
+	) {
+		super(app);
+		this.allTags = allTags;
+		this.currentTags = currentTags;
+		this.onChoose = onChoose;
+		this.setPlaceholder("Type a tag name…");
+	}
+
+	getSuggestions(query: string): string[] {
+		const q = query.trim().toLowerCase();
+		const filtered = this.allTags.filter(
+			(t) => !this.currentTags.includes(t) && t.toLowerCase().includes(q)
+		);
+		if (q && !this.allTags.includes(query.trim())) {
+			filtered.unshift(query.trim());
+		}
+		return filtered;
+	}
+
+	renderSuggestion(tag: string, el: HTMLElement) {
+		el.setText(tag);
+	}
+
+	onChooseSuggestion(tag: string) {
+		this.onChoose(tag);
+	}
+}
+
+class RemoveTagModal extends SuggestModal<string> {
+	private tags: string[];
+	private onChoose: (tag: string) => void;
+
+	constructor(app: App, tags: string[], onChoose: (tag: string) => void) {
+		super(app);
+		this.tags = tags;
+		this.onChoose = onChoose;
+		this.setPlaceholder("Select a tag to remove…");
+	}
+
+	getSuggestions(query: string): string[] {
+		const q = query.trim().toLowerCase();
+		return this.tags.filter((t) => t.toLowerCase().includes(q));
+	}
+
+	renderSuggestion(tag: string, el: HTMLElement) {
+		el.setText(tag);
+	}
+
+	onChooseSuggestion(tag: string) {
+		this.onChoose(tag);
 	}
 }

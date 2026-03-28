@@ -106,4 +106,26 @@ export class Setting {
 
 export class WorkspaceLeaf {}
 
+export class Menu {
+	addItem(_cb: (item: MenuItem) => void) { _cb(new MenuItem()); return this; }
+	showAtMouseEvent(_evt: MouseEvent) {}
+}
+
+export class MenuItem {
+	setTitle(_title: string) { return this; }
+	setIcon(_icon: string) { return this; }
+	onClick(_cb: () => void) { return this; }
+}
+
+export class SuggestModal<T> {
+	app: unknown;
+	constructor(app: unknown) { this.app = app; }
+	setPlaceholder(_placeholder: string) {}
+	getSuggestions(_query: string): T[] { return []; }
+	renderSuggestion(_item: T, _el: HTMLElement) {}
+	onChooseSuggestion(_item: T) {}
+	open() {}
+	close() {}
+}
+
 export function setIcon(_el: HTMLElement, _icon: string) {}

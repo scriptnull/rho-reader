@@ -11,6 +11,8 @@ export {
 	createPostFile,
 	createPostFilesForFeed,
 	setPostReadState,
+	setPostTags,
+	getAllTagsForFeed,
 	getPostsForFeed,
 	countPostsForFeed,
 	updateFeedCountsFromFiles,

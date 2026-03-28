@@ -4,4 +4,5 @@ export interface FeedPost {
 	pubDate: string;
 	guid: string;
 	read?: boolean;
+	tags?: string[];
 }
