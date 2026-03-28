@@ -4,7 +4,7 @@
   "plugins": [
     {
       "name": "rho-reader",
-      "source": ".",
+      "source": "./",
       "description": "LLM-powered reading assistant for Rho Reader",
       "version": "0.1.0"
     }
