@@ -2,18 +2,21 @@ import { Plugin, TFile, setIcon } from "obsidian";
 import {
 	RhoReaderSettings,
 	DEFAULT_SETTINGS,
-	ReadStateByFeed,
 } from "./settings/settings";
 import {
 	VIEW_TYPE_RHO_READER,
 	RhoReaderPane,
-	FeedPost,
 } from "./views/RhoReaderPane";
+import type { FeedPost } from "./types";
 import { RhoReaderSettingTab } from "./settings/RhoReaderSettingTab";
 import { registerCommands } from "./commands/register";
 import {
+	findExistingPostFile,
+	setPostReadState,
+	updateFeedCountsFromFiles,
+	createPostFile,
 	findFileForFeedUrl,
-	updateFeedFrontmatter,
+	getPostKey,
 } from "./commands/utils";
 
 export default class RhoReader extends Plugin {
@@ -107,39 +110,42 @@ export default class RhoReader extends Plugin {
 		}, delay);
 	}
 
-	getPostKey(post: FeedPost): string {
-		return post.guid || post.link || `${post.title}::${post.pubDate}`;
-	}
-
 	isPostRead(feedUrl: string, post: FeedPost): boolean {
-		const postKey = this.getPostKey(post);
-		return !!this.settings.readState?.[feedUrl]?.[postKey]?.read;
+		return post.read === true;
 	}
 
-	markPostRead(feedUrl: string, post: FeedPost) {
-		const postKey = this.getPostKey(post);
-		if (!this.settings.readState[feedUrl]) {
-			this.settings.readState[feedUrl] = {} as ReadStateByFeed;
+	async markPostRead(feedUrl: string, post: FeedPost) {
+		post.read = true;
+		const postKey = getPostKey(post);
+		let file = findExistingPostFile(this, feedUrl, postKey);
+		if (!file) {
+			const feedFile = findFileForFeedUrl(this, feedUrl);
+			if (feedFile) {
+				file = await createPostFile(
+					this,
+					feedUrl,
+					feedFile.basename,
+					post
+				);
+			}
 		}
-		const byFeed = this.settings.readState[feedUrl];
-		byFeed[postKey] = { read: true, readAt: Date.now() };
-		this.saveSettingsDebounced();
+		if (file) {
+			await setPostReadState(this, file, true);
+		}
 		this.updateFeedCounts(feedUrl);
 	}
 
-	markPostUnread(feedUrl: string, post: FeedPost) {
-		const postKey = this.getPostKey(post);
-		if (this.settings.readState[feedUrl]?.[postKey]) {
-			delete this.settings.readState[feedUrl][postKey];
-			this.saveSettingsDebounced();
-			this.updateFeedCounts(feedUrl);
+	async markPostUnread(feedUrl: string, post: FeedPost) {
+		post.read = false;
+		const postKey = getPostKey(post);
+		const file = findExistingPostFile(this, feedUrl, postKey);
+		if (file) {
+			await setPostReadState(this, file, false);
 		}
+		this.updateFeedCounts(feedUrl);
 	}
 
-	private async updateFeedCounts(feedUrl: string) {
-		const file = findFileForFeedUrl(this, feedUrl);
-		if (file) {
-			await updateFeedFrontmatter(this, feedUrl, file);
-		}
+	private updateFeedCounts(feedUrl: string) {
+		updateFeedCountsFromFiles(this, feedUrl);
 	}
 }

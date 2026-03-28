@@ -16,6 +16,10 @@ export async function openRssFeedReader(plugin: RhoReader): Promise<void> {
 	const baseFilePath = `${rhoFolder}/${plugin.settings.rssFeedBaseFile}`;
 
 	await ensureFolderExists(plugin, rhoFolder);
+	await ensureFolderExists(
+		plugin,
+		`${rhoFolder}/${plugin.settings.postsFolder}`
+	);
 
 	const existingFile = plugin.app.vault.getAbstractFileByPath(baseFilePath);
 	if (!existingFile) {

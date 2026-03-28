@@ -10,6 +10,10 @@ export interface ReadStateByFeed {
 export interface RhoReaderSettings {
 	rhoFolder: string;
 	rssFeedBaseFile: string;
+	postsFolder: string;
+	/** @deprecated Used only during migration to file-based post storage */
+	readStateMigrated: boolean;
+	/** @deprecated Read state is now stored in post file frontmatter */
 	readState: {
 		[feedUrl: string]: ReadStateByFeed;
 	};
@@ -18,6 +22,8 @@ export interface RhoReaderSettings {
 export const DEFAULT_SETTINGS: RhoReaderSettings = {
 	rhoFolder: "Rho",
 	rssFeedBaseFile: "Reader.base",
+	postsFolder: "Posts",
+	readStateMigrated: false,
 	readState: {},
 };
 

@@ -1,4 +1,6 @@
-export function parseRssFeedItems(text: string, feedUrl: string): Element[] {
+import type { FeedPost } from "../../types";
+
+export function parseRssFeedItems(text: string, feedUrl: string): FeedPost[] {
 	const parser = new DOMParser();
 
 	let xmlDoc = parser.parseFromString(text, "application/xml");
@@ -34,5 +36,32 @@ export function parseRssFeedItems(text: string, feedUrl: string): Element[] {
 		return [];
 	}
 
-	return items.length > 0 ? Array.from(items) : Array.from(entries);
+	const rawPosts: Element[] =
+		items.length > 0 ? Array.from(items) : Array.from(entries);
+
+	return rawPosts.map((post) => {
+		const title =
+			post.querySelector("title")?.textContent?.trim() || "Untitled";
+
+		let link = "";
+		const linkEl = post.querySelector("link");
+		if (linkEl) {
+			link =
+				linkEl.textContent?.trim() ||
+				linkEl.getAttribute("href") ||
+				"";
+		}
+
+		const pubDate =
+			post.querySelector("pubDate")?.textContent?.trim() ||
+			post.querySelector("published")?.textContent?.trim() ||
+			"";
+
+		const guid =
+			post.querySelector("guid")?.textContent?.trim() ||
+			post.querySelector("id")?.textContent?.trim() ||
+			"";
+
+		return { title, link, pubDate, guid };
+	});
 }

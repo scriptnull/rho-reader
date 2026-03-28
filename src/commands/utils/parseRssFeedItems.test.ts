@@ -13,29 +13,33 @@ describe("parseRssFeedItems", () => {
 			<rss version="2.0">
 				<channel>
 					<title>Test Feed</title>
-					<item><title>Post 1</title></item>
-					<item><title>Post 2</title></item>
+					<item><title>Post 1</title><link>https://example.com/1</link><guid>guid-1</guid></item>
+					<item><title>Post 2</title><link>https://example.com/2</link><guid>guid-2</guid></item>
 				</channel>
 			</rss>`;
 
-		const items = parseRssFeedItems(rssXml, "https://example.com/feed.xml");
-		expect(items).toHaveLength(2);
-		expect(items[0].querySelector("title")?.textContent).toBe("Post 1");
-		expect(items[1].querySelector("title")?.textContent).toBe("Post 2");
+		const posts = parseRssFeedItems(rssXml, "https://example.com/feed.xml");
+		expect(posts).toHaveLength(2);
+		expect(posts[0].title).toBe("Post 1");
+		expect(posts[0].link).toBe("https://example.com/1");
+		expect(posts[0].guid).toBe("guid-1");
+		expect(posts[1].title).toBe("Post 2");
 	});
 
 	it("should parse Atom feed entries correctly", () => {
 		const atomXml = `<?xml version="1.0" encoding="UTF-8"?>
 			<feed xmlns="http://www.w3.org/2005/Atom">
 				<title>Atom Feed</title>
-				<entry><title>Entry 1</title></entry>
-				<entry><title>Entry 2</title></entry>
-				<entry><title>Entry 3</title></entry>
+				<entry><title>Entry 1</title><id>id-1</id><link href="https://example.com/entry-1"/><published>2025-01-01</published></entry>
+				<entry><title>Entry 2</title><id>id-2</id></entry>
+				<entry><title>Entry 3</title><id>id-3</id></entry>
 			</feed>`;
 
-		const items = parseRssFeedItems(atomXml, "https://example.com/atom.xml");
-		expect(items).toHaveLength(3);
-		expect(items[0].querySelector("title")?.textContent).toBe("Entry 1");
+		const posts = parseRssFeedItems(atomXml, "https://example.com/atom.xml");
+		expect(posts).toHaveLength(3);
+		expect(posts[0].title).toBe("Entry 1");
+		expect(posts[0].guid).toBe("id-1");
+		expect(posts[0].pubDate).toBe("2025-01-01");
 	});
 
 	it("should return empty array when no items or entries found", () => {
@@ -46,8 +50,8 @@ describe("parseRssFeedItems", () => {
 				</channel>
 			</rss>`;
 
-		const items = parseRssFeedItems(emptyXml, "https://example.com/empty.xml");
-		expect(items).toHaveLength(0);
+		const posts = parseRssFeedItems(emptyXml, "https://example.com/empty.xml");
+		expect(posts).toHaveLength(0);
 		expect(console.warn).toHaveBeenCalled();
 	});
 
@@ -55,13 +59,39 @@ describe("parseRssFeedItems", () => {
 		const mixedXml = `<?xml version="1.0" encoding="UTF-8"?>
 			<rss version="2.0">
 				<channel>
-					<item><title>RSS Item</title></item>
+					<item><title>RSS Item</title><link>https://example.com/rss</link></item>
 					<entry><title>Atom Entry</title></entry>
 				</channel>
 			</rss>`;
 
-		const items = parseRssFeedItems(mixedXml, "https://example.com/mixed.xml");
-		expect(items).toHaveLength(1);
-		expect(items[0].querySelector("title")?.textContent).toBe("RSS Item");
+		const posts = parseRssFeedItems(mixedXml, "https://example.com/mixed.xml");
+		expect(posts).toHaveLength(1);
+		expect(posts[0].title).toBe("RSS Item");
+	});
+
+	it("should use 'Untitled' for items with no title", () => {
+		const rssXml = `<?xml version="1.0" encoding="UTF-8"?>
+			<rss version="2.0">
+				<channel>
+					<item><link>https://example.com/no-title</link></item>
+				</channel>
+			</rss>`;
+
+		const posts = parseRssFeedItems(rssXml, "https://example.com/feed.xml");
+		expect(posts[0].title).toBe("Untitled");
+	});
+
+	it("should extract link from href attribute for Atom entries", () => {
+		const atomXml = `<?xml version="1.0" encoding="UTF-8"?>
+			<feed xmlns="http://www.w3.org/2005/Atom">
+				<entry>
+					<title>Test</title>
+					<link href="https://example.com/atom-link"/>
+					<id>test-id</id>
+				</entry>
+			</feed>`;
+
+		const posts = parseRssFeedItems(atomXml, "https://example.com/atom.xml");
+		expect(posts[0].link).toBe("https://example.com/atom-link");
 	});
 });

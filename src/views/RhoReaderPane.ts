@@ -1,17 +1,11 @@
-import { ItemView, Menu, WorkspaceLeaf, setIcon, requestUrl } from "obsidian";
+import { ItemView, Menu, WorkspaceLeaf, setIcon } from "obsidian";
 import type RhoReader from "../main";
+import type { FeedPost } from "../types";
 import { syncAllRssFeeds } from "../commands/syncAllRssFeeds";
 import { importOpml } from "../commands/importOpml";
-import { updateFeedFrontmatter, findFileForFeedUrl } from "../commands/utils";
+import { updateFeedFrontmatter, findFileForFeedUrl, getPostsForFeed } from "../commands/utils";
 
 export const VIEW_TYPE_RHO_READER = "rho-reader-pane";
-
-export interface FeedPost {
-	title: string;
-	link: string;
-	pubDate: string;
-	guid: string;
-}
 
 export class RhoReaderPane extends ItemView {
 	plugin: RhoReader;
@@ -40,99 +34,34 @@ export class RhoReaderPane extends ItemView {
 		this.render();
 	}
 
-	async setFeedUrl(url: string | null) {
+	setFeedUrl(url: string | null) {
 		this.currentFeedUrl = url;
 		this.posts = [];
 		if (url) {
-			await this.fetchFeed(url);
-		} else {
-			this.render();
+			this.loadPostsFromFiles(url);
 		}
-	}
-
-	async fetchFeed(url: string) {
-		this.isLoading = true;
-		this.render();
-		try {
-			const response = await requestUrl({ url });
-			const text = response.text;
-			const posts = this.parseRssFeed(text, url);
-			this.posts = posts;
-		} catch (err) {
-			console.error("[Rho Reader] Failed to fetch RSS feed:", err);
-			this.posts = [];
-		}
-		this.isLoading = false;
 		this.render();
 	}
 
-	parseRssFeed(text: string, url: string): FeedPost[] {
-		const parser = new DOMParser();
-
-		let xmlDoc = parser.parseFromString(text, "application/xml");
-		let parserError = xmlDoc.querySelector("parsererror");
-
-		if (parserError) {
-			console.warn(
-				"[Rho Reader] XML parse failed, attempting text/html fallback:",
-				url
-			);
-			xmlDoc = parser.parseFromString(text, "text/html");
-			parserError = xmlDoc.querySelector("parsererror");
-			if (parserError) {
-				console.error(
-					"[Rho Reader] RSS XML parse error:",
-					url,
-					parserError.textContent
-				);
-				console.debug(
-					"[Rho Reader] Response snippet:",
-					text.slice(0, 500)
-				);
-				return [];
-			}
-		}
-
-		const items = xmlDoc.querySelectorAll("item");
-		const entries = xmlDoc.querySelectorAll("entry");
-
-		if (items.length === 0 && entries.length === 0) {
-			console.warn(
-				"[Rho Reader] No <item> or <entry> elements found in feed:",
-				url
-			);
-			console.debug("[Rho Reader] Response snippet:", text.slice(0, 500));
-			return [];
-		}
-
-		const rawPosts: Element[] =
-			items.length > 0 ? Array.from(items) : Array.from(entries);
-
-		return rawPosts.map((post) => {
-			const title =
-				post.querySelector("title")?.textContent?.trim() || "Untitled";
-
-			let link = "";
-			const linkEl = post.querySelector("link");
-			if (linkEl) {
-				link =
-					linkEl.textContent?.trim() ||
-					linkEl.getAttribute("href") ||
-					"";
-			}
-
-			const pubDate =
-				post.querySelector("pubDate")?.textContent?.trim() ||
-				post.querySelector("published")?.textContent?.trim() ||
-				"";
-
-			const guid =
-				post.querySelector("guid")?.textContent?.trim() ||
-				post.querySelector("id")?.textContent?.trim() ||
-				"";
-
-			return { title, link, pubDate, guid };
+	loadPostsFromFiles(url: string) {
+		const postFiles = getPostsForFeed(this.plugin, url);
+		const posts: FeedPost[] = postFiles.map((file) => {
+			const fm =
+				this.plugin.app.metadataCache.getFileCache(file)?.frontmatter;
+			return {
+				title: fm?.rho_title || "",
+				link: fm?.rho_link || "",
+				pubDate: fm?.rho_pub_date || "",
+				guid: fm?.rho_guid || "",
+				read: fm?.read === true,
+			};
 		});
+		posts.sort((a, b) => {
+			const dateA = a.pubDate ? new Date(a.pubDate).getTime() : 0;
+			const dateB = b.pubDate ? new Date(b.pubDate).getTime() : 0;
+			return dateB - dateA;
+		});
+		this.posts = posts;
 	}
 
 	render() {
@@ -251,12 +180,16 @@ export class RhoReaderPane extends ItemView {
 				});
 			}
 			if (post.link) {
-				const linkContainer = meta.createEl("span", {
-					cls: "rho-reader-card-link",
-				});
-				linkContainer.createEl("span", {
-					text: new URL(post.link).hostname,
-				});
+				try {
+					const linkContainer = meta.createEl("span", {
+						cls: "rho-reader-card-link",
+					});
+					linkContainer.createEl("span", {
+						text: new URL(post.link).hostname,
+					});
+				} catch {
+					// invalid URL, skip hostname display
+				}
 			}
 		}
 	}
@@ -407,10 +340,18 @@ export class RhoReaderPane extends ItemView {
 
 	async syncCurrentFeed() {
 		if (!this.currentFeedUrl) return;
+		this.isLoading = true;
+		this.render();
 		const file = findFileForFeedUrl(this.plugin, this.currentFeedUrl);
 		if (file) {
-			await updateFeedFrontmatter(this.plugin, this.currentFeedUrl, file);
+			await updateFeedFrontmatter(
+				this.plugin,
+				this.currentFeedUrl,
+				file
+			);
 		}
-		await this.fetchFeed(this.currentFeedUrl);
+		this.isLoading = false;
+		this.loadPostsFromFiles(this.currentFeedUrl);
+		this.render();
 	}
 }

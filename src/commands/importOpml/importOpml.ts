@@ -8,10 +8,10 @@ import {
 } from "./ImportOpmlModal";
 import { VIEW_TYPE_RHO_READER } from "../../views/RhoReaderPane";
 import { openRssFeedReader } from "../openRssFeedReader/openRssFeedReader";
+import { sanitizeFileName } from "../utils/sanitizeFileName";
+import { getPostsFolderPath } from "../utils/postFiles";
 
-export function sanitizeFileName(name: string): string {
-	return name.replace(/[\\/:*?"<>|#^[\]]/g, "-").trim();
-}
+export { sanitizeFileName };
 
 async function ensureFolderExists(
 	plugin: RhoReader,
@@ -77,8 +77,10 @@ async function performImport(
 	plugin.setProcessing(true, "Importing OPML");
 	try {
 		const feedsFolder = `${plugin.settings.rhoFolder}/Feeds`;
+		const postsFolder = `${plugin.settings.rhoFolder}/${plugin.settings.postsFolder}`;
 		await ensureFolderExists(plugin, plugin.settings.rhoFolder);
 		await ensureFolderExists(plugin, feedsFolder);
+		await ensureFolderExists(plugin, postsFolder);
 
 		let imported = 0;
 
@@ -110,6 +112,11 @@ async function performImport(
 			);
 			if (createdFile instanceof TFile) {
 				await updateFeedFrontmatter(plugin, feed.xmlUrl, createdFile);
+				// Ensure per-feed posts folder exists
+				const feedPostsFolder = getPostsFolderPath(plugin, feed.title);
+				if (!plugin.app.vault.getAbstractFileByPath(feedPostsFolder)) {
+					await plugin.app.vault.createFolder(feedPostsFolder);
+				}
 			}
 			imported++;
 		}
