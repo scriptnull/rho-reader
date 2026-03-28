@@ -62,6 +62,10 @@ export default class RhoReader extends Plugin {
 			let feedUrl: string | null = null;
 			if (file) {
 				const fileCache = this.app.metadataCache.getFileCache(file);
+				if (fileCache?.frontmatter?.rho_feed_url) {
+					// Post file opened (e.g. via "Take notes") — keep current feed displayed
+					return;
+				}
 				feedUrl = fileCache?.frontmatter?.feed_url || null;
 			}
 			let leaf =
