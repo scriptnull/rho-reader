@@ -85,6 +85,14 @@ export function parseRssFeedItems(text: string, feedUrl: string): FeedPost[] {
 			post.querySelector("content")?.textContent?.trim() ||
 			"";
 
-		return { title, link, pubDate, guid, description };
+		const categoryEls = post.querySelectorAll("category");
+		const tags: string[] = [];
+		for (const el of Array.from(categoryEls)) {
+			const val =
+				el.textContent?.trim() || el.getAttribute("term")?.trim() || "";
+			if (val) tags.push(val);
+		}
+
+		return { title, link, pubDate, guid, description, ...(tags.length > 0 ? { tags } : {}) };
 	});
 }

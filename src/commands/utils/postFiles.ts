@@ -80,7 +80,7 @@ export async function createPostFile(
 		rho_description: post.description ?? "",
 		read: false,
 		read_at: 0,
-		rho_tags: [],
+		rho_tags: post.tags ?? [],
 	};
 
 	const content = `---\n${yaml.dump(fm)}---\n`;

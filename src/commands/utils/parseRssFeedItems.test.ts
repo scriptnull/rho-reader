@@ -157,6 +157,51 @@ describe("parseRssFeedItems", () => {
 		expect(posts[0].link).toBe("https://example.com/json/post-1");
 	});
 
+	it("should extract category elements as tags from RSS 2.0 items", () => {
+		const rssXml = `<?xml version="1.0" encoding="UTF-8"?>
+			<rss version="2.0">
+				<channel>
+					<item>
+						<title>Tagged Post</title>
+						<link>https://example.com/tagged</link>
+						<guid>tagged-1</guid>
+						<category>tech</category>
+						<category>news</category>
+					</item>
+				</channel>
+			</rss>`;
+
+		const posts = parseRssFeedItems(rssXml, "https://example.com/feed.xml");
+		expect(posts[0].tags).toEqual(["tech", "news"]);
+	});
+
+	it("should extract category term attribute as tags from Atom entries", () => {
+		const atomXml = `<?xml version="1.0" encoding="UTF-8"?>
+			<feed xmlns="http://www.w3.org/2005/Atom">
+				<entry>
+					<title>Atom Tagged</title>
+					<id>at-1</id>
+					<category term="golang"/>
+					<category term="concurrency"/>
+				</entry>
+			</feed>`;
+
+		const posts = parseRssFeedItems(atomXml, "https://example.com/atom.xml");
+		expect(posts[0].tags).toEqual(["golang", "concurrency"]);
+	});
+
+	it("should not include tags property when no categories exist", () => {
+		const rssXml = `<?xml version="1.0" encoding="UTF-8"?>
+			<rss version="2.0">
+				<channel>
+					<item><title>No Tags</title><link>https://example.com/1</link></item>
+				</channel>
+			</rss>`;
+
+		const posts = parseRssFeedItems(rssXml, "https://example.com/feed.xml");
+		expect(posts[0].tags).toBeUndefined();
+	});
+
 	it("should extract link from href attribute for Atom entries", () => {
 		const atomXml = `<?xml version="1.0" encoding="UTF-8"?>
 			<feed xmlns="http://www.w3.org/2005/Atom">
