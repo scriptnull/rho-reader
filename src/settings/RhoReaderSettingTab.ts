@@ -37,5 +37,20 @@ export class RhoReaderSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					})
 			);
+
+		new Setting(containerEl)
+			.setName("Sync concurrency")
+			.setDesc("Number of feeds to sync in parallel.")
+			.addText((text) =>
+				text
+					.setValue(String(this.plugin.settings.syncConcurrency))
+					.onChange(async (value) => {
+						const num = parseInt(value, 10);
+						if (!isNaN(num) && num >= 1) {
+							this.plugin.settings.syncConcurrency = num;
+							await this.plugin.saveSettings();
+						}
+					})
+			);
 	}
 }

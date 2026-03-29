@@ -33,6 +33,7 @@ function createMockPlugin(
 				}),
 			},
 		},
+		settings: { syncConcurrency: 5 },
 		setProcessing: vi.fn(),
 	} as unknown as RhoReader;
 }

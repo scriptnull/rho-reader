@@ -2,6 +2,21 @@ import type RhoReader from "../../main";
 import { updateFeedFrontmatter, setFeedSyncStatus } from "../utils";
 import { TFile } from "obsidian";
 
+async function syncFeed(
+	plugin: RhoReader,
+	file: TFile,
+	feedUrl: string
+): Promise<void> {
+	await setFeedSyncStatus(plugin, file, "syncing");
+	try {
+		await updateFeedFrontmatter(plugin, feedUrl, file);
+		await setFeedSyncStatus(plugin, file, "synced");
+	} catch (err) {
+		console.error(`Failed to sync feed ${feedUrl}:`, err);
+		await setFeedSyncStatus(plugin, file, "error");
+	}
+}
+
 export async function syncAllRssFeeds(plugin: RhoReader): Promise<void> {
 	plugin.setProcessing(true, "Syncing feeds");
 	try {
@@ -20,17 +35,23 @@ export async function syncAllRssFeeds(plugin: RhoReader): Promise<void> {
 			await setFeedSyncStatus(plugin, file, "queued");
 		}
 
-		// Sync each feed sequentially
-		for (const { file, feedUrl } of feedFiles) {
-			await setFeedSyncStatus(plugin, file, "syncing");
-			try {
-				await updateFeedFrontmatter(plugin, feedUrl, file);
-				await setFeedSyncStatus(plugin, file, "synced");
-			} catch (err) {
-				console.error(`Failed to sync feed ${feedUrl}:`, err);
-				await setFeedSyncStatus(plugin, file, "error");
+		// Sync feeds with concurrency limit
+		const concurrency = plugin.settings.syncConcurrency;
+		let index = 0;
+
+		async function worker(): Promise<void> {
+			while (index < feedFiles.length) {
+				const i = index++;
+				const { file, feedUrl } = feedFiles[i];
+				await syncFeed(plugin, file, feedUrl);
 			}
 		}
+
+		const workers = Array.from(
+			{ length: Math.min(concurrency, feedFiles.length) },
+			() => worker()
+		);
+		await Promise.all(workers);
 	} finally {
 		plugin.setProcessing(false);
 	}
