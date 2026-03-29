@@ -1,5 +1,5 @@
 import type RhoReader from "../../main";
-import { updateFeedFrontmatter } from "../utils";
+import { updateFeedFrontmatter, setFeedSyncStatus } from "../utils";
 
 export async function syncRssFeed(plugin: RhoReader): Promise<void> {
 	const file =
@@ -16,5 +16,12 @@ export async function syncRssFeed(plugin: RhoReader): Promise<void> {
 		return;
 	}
 
-	await updateFeedFrontmatter(plugin, feedUrl, file);
+	await setFeedSyncStatus(plugin, file, "syncing");
+	try {
+		await updateFeedFrontmatter(plugin, feedUrl, file);
+		await setFeedSyncStatus(plugin, file, "synced");
+	} catch (err) {
+		console.error(`Failed to sync feed ${feedUrl}:`, err);
+		await setFeedSyncStatus(plugin, file, "error");
+	}
 }

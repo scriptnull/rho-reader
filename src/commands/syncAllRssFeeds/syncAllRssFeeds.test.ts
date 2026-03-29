@@ -5,6 +5,7 @@ import type { TFile } from "obsidian";
 
 vi.mock("../utils", () => ({
 	updateFeedFrontmatter: vi.fn().mockResolvedValue(undefined),
+	setFeedSyncStatus: vi.fn().mockResolvedValue(undefined),
 }));
 
 import { updateFeedFrontmatter } from "../utils";

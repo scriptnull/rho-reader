@@ -17,6 +17,7 @@ import {
 	createPostFile,
 	findFileForFeedUrl,
 	getPostKey,
+	setFeedSyncStatus,
 } from "./commands/utils";
 
 export default class RhoReader extends Plugin {
@@ -88,6 +89,18 @@ export default class RhoReader extends Plugin {
 		this.updateStatusBar();
 
 		registerCommands(this);
+		this.clearStaleSyncStatuses();
+	}
+
+	private async clearStaleSyncStatuses(): Promise<void> {
+		const files = this.app.vault.getMarkdownFiles();
+		for (const file of files) {
+			const cache = this.app.metadataCache.getFileCache(file);
+			const status = cache?.frontmatter?.rho_sync_status;
+			if (status === "syncing" || status === "queued") {
+				await setFeedSyncStatus(this, file, "error");
+			}
+		}
 	}
 
 	onunload() {}

@@ -31,6 +31,10 @@ export const defaultBaseContent = `
 properties:
   note.rho_unread_posts:
     displayName: Unread
+  note.rho_sync_status:
+    displayName: Status
+  note.rho_last_synced_at:
+    displayName: Last Synced
 views:
   - type: cards
     name: All Feeds
@@ -40,6 +44,7 @@ views:
     order:
       - file.name
       - rho_unread_posts
+      - rho_sync_status
     sort:
       - property: file.name
         direction: ASC
@@ -52,6 +57,7 @@ views:
     order:
       - file.name
       - rho_unread_posts
+      - rho_sync_status
     sort:
       - property: note.rho_unread_posts
         direction: DESC

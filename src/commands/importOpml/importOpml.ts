@@ -1,6 +1,6 @@
 import { Notice, TFile } from "obsidian";
 import type RhoReader from "../../main";
-import { parseOpml, updateFeedFrontmatter } from "../utils";
+import { parseOpml, updateFeedFrontmatter, setFeedSyncStatus } from "../utils";
 import {
 	ImportOpmlModal,
 	FeedToImport,
@@ -111,7 +111,14 @@ async function performImport(
 				fileContent,
 			);
 			if (createdFile instanceof TFile) {
-				await updateFeedFrontmatter(plugin, feed.xmlUrl, createdFile);
+				await setFeedSyncStatus(plugin, createdFile, "syncing");
+				try {
+					await updateFeedFrontmatter(plugin, feed.xmlUrl, createdFile);
+					await setFeedSyncStatus(plugin, createdFile, "synced");
+				} catch (err) {
+					console.error(`Failed to sync imported feed ${feed.xmlUrl}:`, err);
+					await setFeedSyncStatus(plugin, createdFile, "error");
+				}
 				// Ensure per-feed posts folder exists
 				const feedPostsFolder = getPostsFolderPath(plugin, feed.title);
 				if (!plugin.app.vault.getAbstractFileByPath(feedPostsFolder)) {

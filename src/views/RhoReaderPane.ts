@@ -3,7 +3,7 @@ import type RhoReader from "../main";
 import type { FeedPost } from "../types";
 import { syncAllRssFeeds } from "../commands/syncAllRssFeeds";
 import { importOpml } from "../commands/importOpml";
-import { updateFeedFrontmatter, findFileForFeedUrl, getPostsForFeed, findExistingPostFile, getPostKey, setPostTags, getAllTagsForFeed } from "../commands/utils";
+import { updateFeedFrontmatter, findFileForFeedUrl, getPostsForFeed, findExistingPostFile, getPostKey, setPostTags, getAllTagsForFeed, setFeedSyncStatus } from "../commands/utils";
 
 export const VIEW_TYPE_RHO_READER = "rho-reader-pane";
 
@@ -442,11 +442,18 @@ export class RhoReaderPane extends ItemView {
 		this.render();
 		const file = findFileForFeedUrl(this.plugin, this.currentFeedUrl);
 		if (file) {
-			await updateFeedFrontmatter(
-				this.plugin,
-				this.currentFeedUrl,
-				file
-			);
+			await setFeedSyncStatus(this.plugin, file, "syncing");
+			try {
+				await updateFeedFrontmatter(
+					this.plugin,
+					this.currentFeedUrl,
+					file
+				);
+				await setFeedSyncStatus(this.plugin, file, "synced");
+			} catch (err) {
+				console.error("Failed to sync feed:", err);
+				await setFeedSyncStatus(this.plugin, file, "error");
+			}
 		}
 		this.isLoading = false;
 		this.loadPostsFromFiles(this.currentFeedUrl);
