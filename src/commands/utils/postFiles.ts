@@ -25,13 +25,6 @@ export function getPostsFolderPath(
 	return `${plugin.settings.rhoFolder}/${plugin.settings.postsFolder}/${sanitizeFileName(feedTitle)}`;
 }
 
-function sanitizePostFileName(post: FeedPost): string {
-	const postKey = getPostKey(post);
-	const hash = simpleHash(postKey);
-	const base =
-		sanitizeFileName(post.title).slice(0, 100).trim() || "untitled";
-	return `${base} - ${hash}`;
-}
 
 export function findExistingPostFile(
 	plugin: RhoReader,
@@ -67,7 +60,13 @@ export async function createPostFile(
 		await plugin.app.vault.createFolder(folderPath);
 	}
 
-	const fileName = sanitizePostFileName(post);
+	const base =
+		sanitizeFileName(post.title).slice(0, 100).trim() || "untitled";
+	const fileName = plugin.app.vault.getAbstractFileByPath(
+		`${folderPath}/${base}.md`
+	)
+		? `${base} - ${simpleHash(postKey)}`
+		: base;
 	const filePath = `${folderPath}/${fileName}.md`;
 
 	const fm: Record<string, unknown> = {
