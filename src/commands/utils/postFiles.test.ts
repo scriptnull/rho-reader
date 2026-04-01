@@ -384,7 +384,15 @@ describe("updateFeedCountsFromFiles", () => {
 
 		const feedContent =
 			"---\nfeed_url: 'https://blog.com/feed.xml'\nrho_all_posts: 0\nrho_unread_posts: 0\n---\n";
-		vi.mocked(plugin.app.vault.read).mockResolvedValue(feedContent);
+		const post1Content =
+			"---\nrho_feed_url: 'https://blog.com/feed.xml'\nread: true\n---\n";
+		const post2Content =
+			"---\nrho_feed_url: 'https://blog.com/feed.xml'\nread: false\n---\n";
+		vi.mocked(plugin.app.vault.read).mockImplementation(async (file: TFile) => {
+			if (file.path === "Rho/Posts/Blog/Post1.md") return post1Content;
+			if (file.path === "Rho/Posts/Blog/Post2.md") return post2Content;
+			return feedContent;
+		});
 
 		await updateFeedCountsFromFiles(plugin, "https://blog.com/feed.xml");
 

@@ -235,7 +235,33 @@ export async function updateFeedCountsFromFiles(
 	const feedFile = findFileForFeedUrl(plugin, feedUrl);
 	if (!feedFile) return;
 
-	const { total, unread } = countPostsForFeed(plugin, feedUrl);
+	// Read actual file contents instead of relying on the metadata cache,
+	// which may be stale immediately after modifying post files.
+	const postFiles = plugin.app.vault.getMarkdownFiles().filter((file) => {
+		const cache = plugin.app.metadataCache.getFileCache(file);
+		return cache?.frontmatter?.rho_feed_url === feedUrl;
+	});
+	let total = postFiles.length;
+	let unread = 0;
+	for (const pf of postFiles) {
+		const content = await plugin.app.vault.read(pf);
+		if (content.startsWith("---")) {
+			const endFm = content.indexOf("---", 3);
+			if (endFm !== -1) {
+				const fmRaw = content.substring(3, endFm).trim();
+				try {
+					const fm = yaml.load(fmRaw) as Record<string, unknown>;
+					if (fm?.read !== true) unread++;
+				} catch {
+					unread++;
+				}
+			} else {
+				unread++;
+			}
+		} else {
+			unread++;
+		}
+	}
 
 	try {
 		const content = await plugin.app.vault.read(feedFile);
