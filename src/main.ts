@@ -152,6 +152,29 @@ export default class RhoReader extends Plugin {
 		this.updateFeedCounts(feedUrl);
 	}
 
+	async markAllPostsRead(feedUrl: string, posts: FeedPost[]) {
+		for (const post of posts) {
+			post.read = true;
+			const postKey = getPostKey(post);
+			let file = findExistingPostFile(this, feedUrl, postKey);
+			if (!file) {
+				const feedFile = findFileForFeedUrl(this, feedUrl);
+				if (feedFile) {
+					file = await createPostFile(
+						this,
+						feedUrl,
+						feedFile.basename,
+						post
+					);
+				}
+			}
+			if (file) {
+				await setPostReadState(this, file, true);
+			}
+		}
+		this.updateFeedCounts(feedUrl);
+	}
+
 	async markPostUnread(feedUrl: string, post: FeedPost) {
 		post.read = false;
 		const postKey = getPostKey(post);
