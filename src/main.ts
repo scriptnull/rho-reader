@@ -149,7 +149,30 @@ export default class RhoReader extends Plugin {
 		if (file) {
 			await setPostReadState(this, file, true);
 		}
-		this.updateFeedCounts(feedUrl);
+		await this.updateFeedCounts(feedUrl);
+	}
+
+	async markAllPostsRead(feedUrl: string, posts: FeedPost[]) {
+		for (const post of posts) {
+			post.read = true;
+			const postKey = getPostKey(post);
+			let file = findExistingPostFile(this, feedUrl, postKey);
+			if (!file) {
+				const feedFile = findFileForFeedUrl(this, feedUrl);
+				if (feedFile) {
+					file = await createPostFile(
+						this,
+						feedUrl,
+						feedFile.basename,
+						post
+					);
+				}
+			}
+			if (file) {
+				await setPostReadState(this, file, true);
+			}
+		}
+		await this.updateFeedCounts(feedUrl);
 	}
 
 	async markPostUnread(feedUrl: string, post: FeedPost) {
@@ -159,10 +182,10 @@ export default class RhoReader extends Plugin {
 		if (file) {
 			await setPostReadState(this, file, false);
 		}
-		this.updateFeedCounts(feedUrl);
+		await this.updateFeedCounts(feedUrl);
 	}
 
-	private updateFeedCounts(feedUrl: string) {
-		updateFeedCountsFromFiles(this, feedUrl);
+	private async updateFeedCounts(feedUrl: string) {
+		await updateFeedCountsFromFiles(this, feedUrl);
 	}
 }
