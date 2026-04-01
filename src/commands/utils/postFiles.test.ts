@@ -392,7 +392,7 @@ describe("updateFeedCountsFromFiles", () => {
 		expect(modifiedContent).toContain("rho_unread_posts: 0");
 	});
 
-	it("should count posts without frontmatter as unread", async () => {
+	it("should skip posts without frontmatter (cannot determine feed ownership from disk)", async () => {
 		const plugin = createMockPlugin({
 			files: [
 				{
@@ -420,8 +420,8 @@ describe("updateFeedCountsFromFiles", () => {
 
 		const modifiedContent = vi.mocked(plugin.app.vault.modify).mock
 			.calls[0][1] as string;
-		expect(modifiedContent).toContain("rho_all_posts: 1");
-		expect(modifiedContent).toContain("rho_unread_posts: 1");
+		expect(modifiedContent).toContain("rho_all_posts: 0");
+		expect(modifiedContent).toContain("rho_unread_posts: 0");
 	});
 
 	it("should count all posts as read when all are marked read on disk", async () => {
@@ -463,6 +463,39 @@ describe("updateFeedCountsFromFiles", () => {
 			.calls[0][1] as string;
 		expect(modifiedContent).toContain("rho_all_posts: 2");
 		expect(modifiedContent).toContain("rho_unread_posts: 0");
+	});
+
+	it("should count newly created posts not yet in metadata cache", async () => {
+		const plugin = createMockPlugin({
+			files: [
+				{
+					path: "Rho/Feeds/Blog.md",
+					frontmatter: { feed_url: "https://blog.com/feed.xml" },
+				},
+				{
+					path: "Rho/Posts/Blog/Post1.md",
+					// No frontmatter in cache — simulates a newly created file
+					// whose metadata cache entry hasn't been indexed yet
+					frontmatter: undefined,
+				},
+			],
+		});
+
+		const feedContent =
+			"---\nfeed_url: 'https://blog.com/feed.xml'\nrho_all_posts: 0\nrho_unread_posts: 0\n---\n";
+		const post1Content =
+			"---\nrho_feed_url: 'https://blog.com/feed.xml'\nread: false\n---\n";
+		vi.mocked(plugin.app.vault.read).mockImplementation(async (file: TFile) => {
+			if (file.path === "Rho/Posts/Blog/Post1.md") return post1Content;
+			return feedContent;
+		});
+
+		await updateFeedCountsFromFiles(plugin, "https://blog.com/feed.xml");
+
+		const modifiedContent = vi.mocked(plugin.app.vault.modify).mock
+			.calls[0][1] as string;
+		expect(modifiedContent).toContain("rho_all_posts: 1");
+		expect(modifiedContent).toContain("rho_unread_posts: 1");
 	});
 
 	it("should not modify anything when no feed file is found", async () => {
