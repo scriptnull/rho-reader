@@ -7,6 +7,7 @@ import {
 	VIEW_TYPE_RHO_READER,
 	RhoReaderPane,
 } from "./views/RhoReaderPane";
+import { WelcomeModal } from "./views/WelcomeModal";
 import type { FeedPost } from "./types";
 import { RhoReaderSettingTab } from "./settings/RhoReaderSettingTab";
 import { registerCommands } from "./commands/register";
@@ -90,6 +91,12 @@ export default class RhoReader extends Plugin {
 
 		registerCommands(this);
 		this.clearStaleSyncStatuses();
+
+		if (!this.settings.hasSeenWelcome) {
+			this.app.workspace.onLayoutReady(() => {
+				new WelcomeModal(this).open();
+			});
+		}
 	}
 
 	private async clearStaleSyncStatuses(): Promise<void> {

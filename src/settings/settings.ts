@@ -12,6 +12,7 @@ export interface RhoReaderSettings {
 	rssFeedBaseFile: string;
 	postsFolder: string;
 	syncConcurrency: number;
+	hasSeenWelcome: boolean;
 	/** @deprecated Used only during migration to file-based post storage */
 	readStateMigrated: boolean;
 	/** @deprecated Read state is now stored in post file frontmatter */
@@ -25,6 +26,7 @@ export const DEFAULT_SETTINGS: RhoReaderSettings = {
 	rssFeedBaseFile: "Reader.base",
 	postsFolder: "Posts",
 	syncConcurrency: 5,
+	hasSeenWelcome: false,
 	readStateMigrated: false,
 	readState: {},
 };

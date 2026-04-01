@@ -3,6 +3,8 @@ import type RhoReader from "../main";
 import type { FeedPost } from "../types";
 import { syncAllRssFeeds } from "../commands/syncAllRssFeeds";
 import { importOpml } from "../commands/importOpml";
+import { getExistingFeedUrls } from "../commands/importOpml/importOpml";
+import { addFeedByUrl } from "../commands/addFeedByUrl/addFeedByUrl";
 import { updateFeedFrontmatter, findFileForFeedUrl, getPostsForFeed, findExistingPostFile, getPostKey, setPostTags, getAllTagsForFeed, setFeedSyncStatus } from "../commands/utils";
 
 export const VIEW_TYPE_RHO_READER = "rho-reader-pane";
@@ -382,12 +384,43 @@ export class RhoReaderPane extends ItemView {
 			text: "Reading companion for Obsidian",
 		});
 
+		const hasFeeds = getExistingFeedUrls(this.plugin).size > 0;
+
+		// Primary CTA: Add feed by URL
+		const addFeedSection = landing.createEl("div", {
+			cls: "rho-reader-landing-add-feed",
+		});
+
+		const input = addFeedSection.createEl("input", {
+			cls: "rho-reader-landing-input",
+			type: "url",
+			placeholder: "Paste a feed URL…",
+		});
+
+		const addBtn = addFeedSection.createEl("button", {
+			cls: "rho-reader-landing-btn rho-reader-landing-btn--primary",
+			text: "Add Feed",
+		});
+
+		const handleAddFeed = () => {
+			if (input.value.trim()) {
+				addFeedByUrl(this.plugin, input.value);
+				input.value = "";
+			}
+		};
+
+		addBtn.addEventListener("click", handleAddFeed);
+		input.addEventListener("keydown", (e: KeyboardEvent) => {
+			if (e.key === "Enter") handleAddFeed();
+		});
+
+		// Secondary actions
 		const actions = landing.createEl("div", {
 			cls: "rho-reader-landing-actions",
 		});
 
 		const rssFeedReaderBtn = actions.createEl("button", {
-			cls: "rho-reader-landing-btn rho-reader-landing-btn--primary",
+			cls: "rho-reader-landing-btn",
 		});
 		setIcon(rssFeedReaderBtn.createSpan(), "rss");
 		rssFeedReaderBtn.createSpan({ text: "Feed Reader" });
@@ -397,14 +430,16 @@ export class RhoReaderPane extends ItemView {
 			);
 		});
 
-		const syncBtn = actions.createEl("button", {
-			cls: "rho-reader-landing-btn",
-		});
-		setIcon(syncBtn.createSpan(), "refresh-cw");
-		syncBtn.createSpan({ text: "Sync Feeds" });
-		syncBtn.addEventListener("click", async () => {
-			await this.syncAllFeeds();
-		});
+		if (hasFeeds) {
+			const syncBtn = actions.createEl("button", {
+				cls: "rho-reader-landing-btn",
+			});
+			setIcon(syncBtn.createSpan(), "refresh-cw");
+			syncBtn.createSpan({ text: "Sync Feeds" });
+			syncBtn.addEventListener("click", async () => {
+				await this.syncAllFeeds();
+			});
+		}
 
 		const importBtn = actions.createEl("button", {
 			cls: "rho-reader-landing-btn",
@@ -414,6 +449,13 @@ export class RhoReaderPane extends ItemView {
 		importBtn.addEventListener("click", () => {
 			importOpml(this.plugin);
 		});
+
+		if (!hasFeeds) {
+			const hint = landing.createEl("div", {
+				cls: "rho-reader-landing-hint",
+				text: "Add your first feed above, or import feeds from another reader using OPML.",
+			});
+		}
 
 		const footer = landing.createEl("div", {
 			cls: "rho-reader-landing-footer",

@@ -3,6 +3,7 @@ import { syncAllRssFeeds } from "./syncAllRssFeeds";
 import { openRssFeedReader } from "./openRssFeedReader";
 import { importOpml } from "./importOpml";
 import { exportOpml } from "./exportOpml/exportOpml";
+import { AddFeedModal } from "./addFeedByUrl/AddFeedModal";
 
 export function registerCommands(plugin: RhoReader): void {
 	plugin.addCommand({
@@ -27,5 +28,13 @@ export function registerCommands(plugin: RhoReader): void {
 		id: "export-opml",
 		name: "Export OPML",
 		callback: () => exportOpml(plugin),
+	});
+
+	plugin.addCommand({
+		id: "add-feed-by-url",
+		name: "Add feed by URL",
+		callback: () => {
+			new AddFeedModal(plugin).open();
+		},
 	});
 }
