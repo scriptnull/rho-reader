@@ -20,9 +20,9 @@
 ## 🚀 Features
 
 - Built on top of [Obsidian Bases](https://help.obsidian.md/bases).
-- Supports RSS / Atom feeds.
-- Track your read / unread posts.
-- (more to come...)
+- Supports RSS, Atom, and JSON Feed formats.
+- Import and export OPML.
+- Tagging system to organise reading lists.
 
 ## 💡 How to Use
 
