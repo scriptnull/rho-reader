@@ -322,9 +322,9 @@ describe("createPostFile", () => {
 		expect(result?.path).toBe(existingFile.path);
 	});
 
-	it("should create a new file when no existing post matches", async () => {
+	it("should create a new file without a hash when no collision", async () => {
 		const createdFile = {
-			path: "Rho/Posts/Blog/New Post - abc12345.md",
+			path: "Rho/Posts/Blog/New Post.md",
 		} as TFile;
 		const plugin = createMockPlugin({ files: [] });
 		vi.mocked(plugin.app.vault.create).mockResolvedValue(
@@ -347,12 +347,42 @@ describe("createPostFile", () => {
 
 		expect(plugin.app.vault.create).toHaveBeenCalled();
 		const createCall = vi.mocked(plugin.app.vault.create).mock.calls[0];
+		expect(createCall[0]).toBe("Rho/Posts/Blog/New Post.md");
 		const content = createCall[1] as string;
 		expect(content).toContain("rho_feed_url:");
 		expect(content).toContain("rho_post_key:");
 		expect(content).toContain("read: false");
 		expect(content).toContain("read_at: 0");
 		expect(result?.path).toBe(createdFile.path);
+	});
+
+	it("should append hash when a file with the same title already exists", async () => {
+		const existingFile = {
+			path: "Rho/Posts/Blog/New Post.md",
+		} as TFile;
+		const createdFile = {
+			path: "Rho/Posts/Blog/New Post - 12345678.md",
+		} as TFile;
+		const plugin = createMockPlugin({ files: [] });
+		vi.mocked(plugin.app.vault.getAbstractFileByPath).mockImplementation(
+			(path: string) =>
+				path === "Rho/Posts/Blog/New Post.md" ? existingFile : null
+		);
+		vi.mocked(plugin.app.vault.create).mockResolvedValue(
+			createdFile as any
+		);
+
+		const post: FeedPost = {
+			title: "New Post",
+			link: "https://blog.com/new2",
+			pubDate: "2025-01-01",
+			guid: "https://blog.com/new2",
+		};
+
+		await createPostFile(plugin, "https://blog.com/feed.xml", "Blog", post);
+
+		const createCall = vi.mocked(plugin.app.vault.create).mock.calls[0];
+		expect(createCall[0]).toMatch(/^Rho\/Posts\/Blog\/New Post - [0-9a-f]{8}\.md$/);
 	});
 });
 
