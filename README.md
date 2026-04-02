@@ -26,6 +26,8 @@
 
 ## 💡 How to Use
 
+> **Note:** The screenshots below may be outdated and might not reflect the latest version of the plugin.
+
 ### Browse feeds
 
 Browsing the RSS/Atom feeds that you follow is just browsing an Obsidian Base managed by Rho.
