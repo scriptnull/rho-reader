@@ -152,10 +152,9 @@ export default class RhoReader extends Plugin {
 		await this.updateFeedCounts(feedUrl);
 	}
 
-	async markAllPostsRead(feedUrl: string, posts: FeedPost[]) {
+	async persistAllPostsRead(feedUrl: string, posts: FeedPost[]) {
 		await Promise.all(
 			posts.map(async (post) => {
-				post.read = true;
 				const postKey = getPostKey(post);
 				let file = findExistingPostFile(this, feedUrl, postKey);
 				if (!file) {

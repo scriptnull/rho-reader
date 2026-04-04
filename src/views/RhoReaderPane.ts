@@ -340,12 +340,15 @@ export class RhoReaderPane extends ItemView {
 		});
 	}
 
-	async markAllAsRead() {
+	markAllAsRead() {
 		if (!this.currentFeedUrl || this.posts.length === 0) {
 			return;
 		}
-		await this.plugin.markAllPostsRead(this.currentFeedUrl, this.posts);
+		for (const post of this.posts) {
+			post.read = true;
+		}
 		this.render();
+		this.plugin.persistAllPostsRead(this.currentFeedUrl, this.posts);
 	}
 
 	renderEmptyState(container: HTMLElement) {
