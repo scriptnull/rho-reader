@@ -10,6 +10,7 @@ import {
 import type { FeedPost } from "./types";
 import { RhoReaderSettingTab } from "./settings/RhoReaderSettingTab";
 import { registerCommands } from "./commands/register";
+import { openRssFeedReader } from "./commands/openRssFeedReader/openRssFeedReader";
 import {
 	findExistingPostFile,
 	setPostReadState,
@@ -58,6 +59,10 @@ export default class RhoReader extends Plugin {
 			VIEW_TYPE_RHO_READER,
 			(leaf) => new RhoReaderPane(leaf, this)
 		);
+
+		this.addRibbonIcon("rss", "Rho Reader", async () => {
+			await openRssFeedReader(this);
+		});
 
 		this.app.workspace.on("file-open", async (file: TFile | null) => {
 			let feedUrl: string | null = null;
