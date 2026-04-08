@@ -3,6 +3,7 @@ import type RhoReader from "../main";
 import type { FeedPost } from "../types";
 import { syncAllRssFeeds } from "../commands/syncAllRssFeeds";
 import { importOpml } from "../commands/importOpml";
+import { getExistingFeedUrls } from "../commands/importOpml/importOpml";
 import { updateFeedFrontmatter, findFileForFeedUrl, getPostsForFeed, findExistingPostFile, getPostKey, setPostTags, getAllTagsForFeed, setFeedSyncStatus } from "../commands/utils";
 
 export const VIEW_TYPE_RHO_READER = "rho-reader-pane";
@@ -400,14 +401,16 @@ export class RhoReaderPane extends ItemView {
 			);
 		});
 
-		const syncBtn = actions.createEl("button", {
-			cls: "rho-reader-landing-btn",
-		});
-		setIcon(syncBtn.createSpan(), "refresh-cw");
-		syncBtn.createSpan({ text: "Sync Feeds" });
-		syncBtn.addEventListener("click", async () => {
-			await this.syncAllFeeds();
-		});
+		if (getExistingFeedUrls(this.plugin).size > 0) {
+			const syncBtn = actions.createEl("button", {
+				cls: "rho-reader-landing-btn",
+			});
+			setIcon(syncBtn.createSpan(), "refresh-cw");
+			syncBtn.createSpan({ text: "Sync Feeds" });
+			syncBtn.addEventListener("click", async () => {
+				await this.syncAllFeeds();
+			});
+		}
 
 		const importBtn = actions.createEl("button", {
 			cls: "rho-reader-landing-btn",
