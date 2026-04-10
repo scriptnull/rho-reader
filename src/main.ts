@@ -14,6 +14,7 @@ import {
 	findExistingPostFile,
 	setPostReadState,
 	updateFeedCountsFromFiles,
+	setFeedCounts,
 	createPostFile,
 	findFileForFeedUrl,
 	getPostKey,
@@ -184,6 +185,10 @@ export default class RhoReader extends Plugin {
 			await setPostReadState(this, file, false);
 		}
 		await this.updateFeedCounts(feedUrl);
+	}
+
+	async setFeedCountsDirect(feedUrl: string, total: number, unread: number) {
+		await setFeedCounts(this, feedUrl, total, unread);
 	}
 
 	private async updateFeedCounts(feedUrl: string) {

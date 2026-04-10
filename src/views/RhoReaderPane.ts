@@ -344,10 +344,18 @@ export class RhoReaderPane extends ItemView {
 		if (!this.currentFeedUrl || this.posts.length === 0) {
 			return;
 		}
+		const unreadCount = this.posts.filter((p) => !p.read).length;
 		for (const post of this.posts) {
 			post.read = true;
 		}
 		this.render();
+		if (unreadCount > 0) {
+			this.plugin.setFeedCountsDirect(
+				this.currentFeedUrl,
+				this.posts.length,
+				0
+			);
+		}
 		this.plugin.persistAllPostsRead(this.currentFeedUrl, this.posts);
 	}
 
