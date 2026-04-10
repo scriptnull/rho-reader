@@ -3,9 +3,7 @@ import { parseRssFeedItems } from "./parseRssFeedItems";
 
 describe("parseRssFeedItems", () => {
 	beforeEach(() => {
-		vi.spyOn(console, "warn").mockImplementation(() => {});
 		vi.spyOn(console, "error").mockImplementation(() => {});
-		vi.spyOn(console, "debug").mockImplementation(() => {});
 	});
 
 	it("should parse RSS 2.0 items correctly", () => {
@@ -52,7 +50,7 @@ describe("parseRssFeedItems", () => {
 
 		const posts = parseRssFeedItems(emptyXml, "https://example.com/empty.xml");
 		expect(posts).toHaveLength(0);
-		expect(console.warn).toHaveBeenCalled();
+		expect(console.error).toHaveBeenCalled();
 	});
 
 	it("should prefer RSS items over Atom entries when both exist", () => {
