@@ -1,0 +1,1 @@
+export { markAllFeedsAsRead } from "./markAllFeedsAsRead";
