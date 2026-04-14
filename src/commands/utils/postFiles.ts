@@ -57,7 +57,20 @@ export async function createPostFile(
 
 	const folderPath = getPostsFolderPath(plugin, feedTitle);
 	if (!plugin.app.vault.getAbstractFileByPath(folderPath)) {
-		await plugin.app.vault.createFolder(folderPath);
+		try {
+			await plugin.app.vault.createFolder(folderPath);
+		} catch {
+			// A concurrent call (e.g. from Promise.all in persistAllPostsRead)
+			// may have already created the folder. Only treat it as a real
+			// error if the folder still doesn't exist after the failure.
+			if (!plugin.app.vault.getAbstractFileByPath(folderPath)) {
+				console.error(
+					"[Rho Reader] Failed to create posts folder:",
+					folderPath
+				);
+				return null;
+			}
+		}
 	}
 
 	const base =
