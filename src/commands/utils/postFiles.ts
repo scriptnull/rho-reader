@@ -4,6 +4,7 @@ import type RhoReader from "../../main";
 import type { FeedPost } from "../../types";
 import { sanitizeFileName } from "./sanitizeFileName";
 import { findFileForFeedUrl } from "./findFileForFeedUrl";
+import { modifyFrontmatter } from "./frontmatter";
 
 function simpleHash(str: string): string {
 	let hash = 5381;
@@ -117,31 +118,10 @@ export async function setPostReadState(
 	readAt?: number
 ): Promise<void> {
 	try {
-		const content = await plugin.app.vault.read(file);
-		if (!content.startsWith("---")) return;
-		const endFm = content.indexOf("---", 3);
-		if (endFm === -1) return;
-		const fmRaw = content.substring(3, endFm).trim();
-		const afterClosing = content.substring(endFm + 3);
-		const body = afterClosing.startsWith("\n")
-			? afterClosing.substring(1)
-			: afterClosing;
-		let fm: Record<string, unknown> = {};
-		try {
-			fm = (yaml.load(fmRaw) as Record<string, unknown>) || {};
-		} catch (e) {
-			console.error(
-				"[Rho Reader] Failed to parse post file frontmatter:",
-				e
-			);
-			return;
-		}
-		fm.read = read;
-		fm.read_at = read ? (readAt ?? Date.now()) : 0;
-		await plugin.app.vault.modify(
-			file,
-			`---\n${yaml.dump(fm)}---\n${body}`
-		);
+		await modifyFrontmatter(plugin, file, (fm) => {
+			fm.read = read;
+			fm.read_at = read ? (readAt ?? Date.now()) : 0;
+		});
 	} catch (err) {
 		console.error("[Rho Reader] Failed to set post read state:", err);
 	}
@@ -178,30 +158,9 @@ export async function setPostTags(
 	tags: string[]
 ): Promise<void> {
 	try {
-		const content = await plugin.app.vault.read(file);
-		if (!content.startsWith("---")) return;
-		const endFm = content.indexOf("---", 3);
-		if (endFm === -1) return;
-		const fmRaw = content.substring(3, endFm).trim();
-		const afterClosing = content.substring(endFm + 3);
-		const body = afterClosing.startsWith("\n")
-			? afterClosing.substring(1)
-			: afterClosing;
-		let fm: Record<string, unknown> = {};
-		try {
-			fm = (yaml.load(fmRaw) as Record<string, unknown>) || {};
-		} catch (e) {
-			console.error(
-				"[Rho Reader] Failed to parse post file frontmatter:",
-				e
-			);
-			return;
-		}
-		fm.rho_tags = tags;
-		await plugin.app.vault.modify(
-			file,
-			`---\n${yaml.dump(fm)}---\n${body}`
-		);
+		await modifyFrontmatter(plugin, file, (fm) => {
+			fm.rho_tags = tags;
+		});
 	} catch (err) {
 		console.error("[Rho Reader] Failed to set post tags:", err);
 	}
@@ -256,36 +215,21 @@ export async function updateFeedCountsFromFiles(
 	}
 
 	try {
-		const content = await plugin.app.vault.read(feedFile);
-		let newContent = content;
-		if (content.startsWith("---")) {
-			const endFm = content.indexOf("---", 3);
-			if (endFm !== -1) {
-				const fmRaw = content.substring(3, endFm).trim();
-				const afterClosing = content.substring(endFm + 3);
-				const body = afterClosing.startsWith("\n")
-					? afterClosing.substring(1)
-					: afterClosing;
-				let fm: Record<string, unknown> = {};
-				try {
-					fm = (yaml.load(fmRaw) as Record<string, unknown>) || {};
-				} catch (e) {
-					console.error(
-						"[Rho Reader] Failed to parse feed file frontmatter:",
-						e
-					);
-					return;
-				}
-				fm.rho_all_posts = total;
-				fm.rho_unread_posts = unread;
-				newContent = `---\n${yaml.dump(fm)}---\n${body}`;
+		const updated = await modifyFrontmatter(plugin, feedFile, (fm) => {
+			fm.rho_all_posts = total;
+			fm.rho_unread_posts = unread;
+		});
+		if (!updated) {
+			// Feed file has no frontmatter yet (or it failed to parse);
+			// prepend a minimal block so the counts are recorded.
+			const content = await plugin.app.vault.read(feedFile);
+			if (!content.startsWith("---")) {
+				await plugin.app.vault.modify(
+					feedFile,
+					`---\nrho_unread_posts: ${unread}\nrho_all_posts: ${total}\n---\n${content}`
+				);
 			}
-		} else {
-			newContent =
-				`---\nrho_unread_posts: ${unread}\nrho_all_posts: ${total}\n---\n` +
-				content;
 		}
-		await plugin.app.vault.modify(feedFile, newContent);
 	} catch (err) {
 		console.error("[Rho Reader] Failed to update feed counts:", err);
 	}
