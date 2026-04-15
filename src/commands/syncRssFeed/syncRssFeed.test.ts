@@ -34,7 +34,7 @@ function createMockPlugin(options: {
 describe("syncRssFeed", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.spyOn(console, "log").mockImplementation(() => {});
+		vi.spyOn(console, "error").mockImplementation(() => {});
 	});
 
 	it("should log and return when no active file", async () => {
@@ -42,7 +42,7 @@ describe("syncRssFeed", () => {
 
 		await syncRssFeed(plugin);
 
-		expect(console.log).toHaveBeenCalledWith("No active file.");
+		expect(console.error).toHaveBeenCalledWith("[Rho Reader] No active file.");
 		expect(updateFeedFrontmatter).not.toHaveBeenCalled();
 	});
 
@@ -52,8 +52,8 @@ describe("syncRssFeed", () => {
 
 		await syncRssFeed(plugin);
 
-		expect(console.log).toHaveBeenCalledWith(
-			"No feed_url property found in frontmatter."
+		expect(console.error).toHaveBeenCalledWith(
+			"[Rho Reader] No feed_url property found in frontmatter."
 		);
 		expect(updateFeedFrontmatter).not.toHaveBeenCalled();
 	});

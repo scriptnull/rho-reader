@@ -23,10 +23,6 @@ export function parseRssFeedItems(text: string, feedUrl: string): FeedPost[] {
 	let parserError = xmlDoc.querySelector("parsererror");
 
 	if (parserError) {
-		console.warn(
-			"[Rho Reader] XML parse failed, attempting text/html fallback:",
-			feedUrl
-		);
 		xmlDoc = parser.parseFromString(text, "text/html");
 		parserError = xmlDoc.querySelector("parsererror");
 		if (parserError) {
@@ -35,7 +31,6 @@ export function parseRssFeedItems(text: string, feedUrl: string): FeedPost[] {
 				feedUrl,
 				parserError.textContent
 			);
-			console.debug("[Rho Reader] Response snippet:", text.slice(0, 500));
 			return [];
 		}
 	}
@@ -44,11 +39,10 @@ export function parseRssFeedItems(text: string, feedUrl: string): FeedPost[] {
 	const entries = xmlDoc.querySelectorAll("entry");
 
 	if (items.length === 0 && entries.length === 0) {
-		console.warn(
+		console.error(
 			"[Rho Reader] No <item> or <entry> elements found in feed:",
 			feedUrl
 		);
-		console.debug("[Rho Reader] Response snippet:", text.slice(0, 500));
 		return [];
 	}
 
