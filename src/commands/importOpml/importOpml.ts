@@ -1,4 +1,5 @@
 import { Notice, TFile } from "obsidian";
+import * as yaml from "js-yaml";
 import type RhoReader from "../../main";
 import { parseOpml, updateFeedFrontmatter, setFeedSyncStatus } from "../utils";
 import {
@@ -86,17 +87,15 @@ async function performImport(
 
 		for (const feed of feeds) {
 			const fileName = sanitizeFileName(feed.title) + ".md";
-			const frontmatter = [
-				"---",
-				`feed_url: "${feed.xmlUrl}"`,
-				`rho_unread_posts: 0`,
-				`rho_all_posts: 0`,
-			];
+			const fm: Record<string, unknown> = {
+				feed_url: feed.xmlUrl,
+				rho_unread_posts: 0,
+				rho_all_posts: 0,
+			};
 			if (feed.htmlUrl) {
-				frontmatter.push(`feed_site: "${feed.htmlUrl}"`);
+				fm.feed_site = feed.htmlUrl;
 			}
-			frontmatter.push("---");
-			const fileContent = frontmatter.join("\n");
+			const fileContent = `---\n${yaml.dump(fm)}---\n`;
 
 			let filePath = `${feedsFolder}/${fileName}`;
 			const existingFile =
