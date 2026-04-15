@@ -1,6 +1,8 @@
 import esbuild from "esbuild";
 import process from "process";
 import builtins from "builtin-modules";
+import { execSync } from "child_process";
+import { readFileSync, writeFileSync } from "fs";
 
 const banner =
 `/*
@@ -10,6 +12,22 @@ if you want to view the source, please visit the github repository of this plugi
 `;
 
 const prod = (process.argv[2] === "production");
+
+// Stamp manifest.json with a unique build version
+if (prod) {
+	const manifest = JSON.parse(readFileSync("manifest.json", "utf-8"));
+	const baseVersion = manifest.version.replace(/\+.*$/, ""); // strip any prior build metadata
+	const now = new Date();
+	const pad = (n) => String(n).padStart(2, "0");
+	const dateStamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}.${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+	let commit = "unknown";
+	try {
+		commit = execSync("git rev-parse --short HEAD", { encoding: "utf-8" }).trim();
+	} catch (_) {}
+	manifest.version = `${baseVersion}+${dateStamp}.${commit}`;
+	writeFileSync("manifest.json", JSON.stringify(manifest, null, "\t") + "\n");
+	console.log(`Build version: ${manifest.version}`);
+}
 
 const context = await esbuild.context({
 	banner: {
