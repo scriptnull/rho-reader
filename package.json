@@ -1,7 +1,7 @@
 {
 	"name": "rho-reader",
-	"version": "0.1.0",
-	"description": "A Reading Companion for Obsidian 🌸📚",
+	"version": "0.4.0",
+	"description": "Read and manage RSS feeds.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
