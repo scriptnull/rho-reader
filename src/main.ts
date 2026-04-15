@@ -59,27 +59,29 @@ export default class RhoReader extends Plugin {
 			(leaf) => new RhoReaderPane(leaf, this)
 		);
 
-		this.app.workspace.on("file-open", async (file: TFile | null) => {
-			let feedUrl: string | null = null;
-			if (file) {
-				const fileCache = this.app.metadataCache.getFileCache(file);
-				if (fileCache?.frontmatter?.rho_feed_url) {
-					// Post file opened (e.g. via "Take notes") — keep current feed displayed
-					return;
+		this.registerEvent(
+			this.app.workspace.on("file-open", async (file: TFile | null) => {
+				let feedUrl: string | null = null;
+				if (file) {
+					const fileCache = this.app.metadataCache.getFileCache(file);
+					if (fileCache?.frontmatter?.rho_feed_url) {
+						// Post file opened (e.g. via "Take notes") — keep current feed displayed
+						return;
+					}
+					feedUrl = fileCache?.frontmatter?.feed_url || null;
 				}
-				feedUrl = fileCache?.frontmatter?.feed_url || null;
-			}
-			let leaf =
-				this.app.workspace.getLeavesOfType(VIEW_TYPE_RHO_READER)[0];
-			if (!leaf) {
-				const rightLeaf = this.app.workspace.getRightLeaf(false);
-				if (!rightLeaf) return;
-				await rightLeaf.setViewState({ type: VIEW_TYPE_RHO_READER });
-				leaf = rightLeaf;
-			}
-			const view = leaf.view as RhoReaderPane;
-			view.setFeedUrl(feedUrl);
-		});
+				let leaf =
+					this.app.workspace.getLeavesOfType(VIEW_TYPE_RHO_READER)[0];
+				if (!leaf) {
+					const rightLeaf = this.app.workspace.getRightLeaf(false);
+					if (!rightLeaf) return;
+					await rightLeaf.setViewState({ type: VIEW_TYPE_RHO_READER });
+					leaf = rightLeaf;
+				}
+				const view = leaf.view as RhoReaderPane;
+				view.setFeedUrl(feedUrl);
+			})
+		);
 
 		this.addSettingTab(new RhoReaderSettingTab(this.app, this));
 
@@ -103,7 +105,15 @@ export default class RhoReader extends Plugin {
 		}
 	}
 
-	onunload() {}
+	onunload() {
+		if (this.saveSettingsTimeout !== null) {
+			window.clearTimeout(this.saveSettingsTimeout);
+			this.saveSettingsTimeout = null;
+			this.saveSettings();
+		}
+		this.app.workspace.detachLeavesOfType(VIEW_TYPE_RHO_READER);
+		this.statusBarItem = null;
+	}
 
 	async loadSettings() {
 		this.settings = Object.assign(
@@ -152,26 +162,27 @@ export default class RhoReader extends Plugin {
 		await this.updateFeedCounts(feedUrl);
 	}
 
-	async markAllPostsRead(feedUrl: string, posts: FeedPost[]) {
-		for (const post of posts) {
-			post.read = true;
-			const postKey = getPostKey(post);
-			let file = findExistingPostFile(this, feedUrl, postKey);
-			if (!file) {
-				const feedFile = findFileForFeedUrl(this, feedUrl);
-				if (feedFile) {
-					file = await createPostFile(
-						this,
-						feedUrl,
-						feedFile.basename,
-						post
-					);
+	async persistAllPostsRead(feedUrl: string, posts: FeedPost[]) {
+		await Promise.all(
+			posts.map(async (post) => {
+				const postKey = getPostKey(post);
+				let file = findExistingPostFile(this, feedUrl, postKey);
+				if (!file) {
+					const feedFile = findFileForFeedUrl(this, feedUrl);
+					if (feedFile) {
+						file = await createPostFile(
+							this,
+							feedUrl,
+							feedFile.basename,
+							post
+						);
+					}
 				}
-			}
-			if (file) {
-				await setPostReadState(this, file, true);
-			}
-		}
+				if (file) {
+					await setPostReadState(this, file, true);
+				}
+			})
+		);
 		await this.updateFeedCounts(feedUrl);
 	}
 

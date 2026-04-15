@@ -3,9 +3,8 @@
 	"name": "Rho Reader",
 	"version": "0.4.0",
 	"minAppVersion": "0.15.0",
-	"description": "A Reading Companion for Obsidian 🌸📚",
+	"description": "Read and manage RSS feeds.",
 	"author": "Vishnu Bharathi",
 	"authorUrl": "https://vishnubharathi.codes/",
-	"fundingUrl": "",
 	"isDesktopOnly": false
 }
