@@ -103,16 +103,24 @@ export class RhoReaderPane extends ItemView {
 
 			if (post.link) {
 				card.style.cursor = "pointer";
-				card.addEventListener("click", async () => {
+				card.addEventListener("click", () => {
 					new Notice("Opening in browser...");
-					if (
+					const shouldMarkRead =
 						this.currentFeedUrl &&
-						!this.plugin.isPostRead(this.currentFeedUrl, post)
-					) {
+						!this.plugin.isPostRead(this.currentFeedUrl, post);
+					if (shouldMarkRead) {
 						card.addClass("rho-reader-card--read");
-						await this.plugin.markPostRead(this.currentFeedUrl, post);
 					}
+					// Open synchronously so mobile WebViews keep the user-gesture
+					// activation — awaiting async work first causes the first tap
+					// to be ignored and only the second tap opens the link.
 					window.open(post.link, "_blank");
+					if (shouldMarkRead) {
+						void this.plugin.markPostRead(
+							this.currentFeedUrl!,
+							post
+						);
+					}
 				});
 			}
 
