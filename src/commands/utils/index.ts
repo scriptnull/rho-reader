@@ -18,5 +18,6 @@ export {
 	getPostsForFeed,
 	countPostsForFeed,
 	updateFeedCountsFromFiles,
+	getFeedCounts,
 	setFeedCounts,
 } from "./postFiles";
