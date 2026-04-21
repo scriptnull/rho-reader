@@ -3,6 +3,7 @@ import type RhoReader from "../main";
 import type { FeedPost } from "../types";
 import { syncAllRssFeeds } from "../commands/syncAllRssFeeds";
 import { importOpml } from "../commands/importOpml";
+import { openRssFeedReader } from "../commands/openRssFeedReader";
 import { updateFeedFrontmatter, findFileForFeedUrl, getPostsForFeed, findExistingPostFile, getPostKey, setPostTags, getAllTagsForFeed, setFeedSyncStatus } from "../commands/utils";
 
 export const VIEW_TYPE_RHO_READER = "rho-reader-pane";
@@ -102,13 +103,13 @@ export class RhoReaderPane extends ItemView {
 
 			if (post.link) {
 				card.style.cursor = "pointer";
-				card.addEventListener("click", () => {
+				card.addEventListener("click", async () => {
 					if (
 						this.currentFeedUrl &&
 						!this.plugin.isPostRead(this.currentFeedUrl, post)
 					) {
-						this.plugin.markPostRead(this.currentFeedUrl, post);
 						card.addClass("rho-reader-card--read");
+						await this.plugin.markPostRead(this.currentFeedUrl, post);
 					}
 					window.open(post.link, "_blank");
 				});
@@ -403,9 +404,7 @@ export class RhoReaderPane extends ItemView {
 		setIcon(rssFeedReaderBtn.createSpan(), "rss");
 		rssFeedReaderBtn.createSpan({ text: "Feed Reader" });
 		rssFeedReaderBtn.addEventListener("click", () => {
-			(this.plugin.app as any).commands.executeCommandById(
-				"rho-reader:open-rss-feed-reader"
-			);
+			openRssFeedReader(this.plugin);
 		});
 
 		const syncBtn = actions.createEl("button", {

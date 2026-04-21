@@ -4,6 +4,10 @@ import {
 	DEFAULT_SETTINGS,
 } from "./settings/settings";
 import {
+	clampSyncConcurrency,
+	normalizeFolderPath,
+} from "./settings/validation";
+import {
 	VIEW_TYPE_RHO_READER,
 	RhoReaderPane,
 } from "./views/RhoReaderPane";
@@ -60,27 +64,29 @@ export default class RhoReader extends Plugin {
 			(leaf) => new RhoReaderPane(leaf, this)
 		);
 
-		this.app.workspace.on("file-open", async (file: TFile | null) => {
-			let feedUrl: string | null = null;
-			if (file) {
-				const fileCache = this.app.metadataCache.getFileCache(file);
-				if (fileCache?.frontmatter?.rho_feed_url) {
-					// Post file opened (e.g. via "Take notes") — keep current feed displayed
-					return;
+		this.registerEvent(
+			this.app.workspace.on("file-open", async (file: TFile | null) => {
+				let feedUrl: string | null = null;
+				if (file) {
+					const fileCache = this.app.metadataCache.getFileCache(file);
+					if (fileCache?.frontmatter?.rho_feed_url) {
+						// Post file opened (e.g. via "Take notes") — keep current feed displayed
+						return;
+					}
+					feedUrl = fileCache?.frontmatter?.feed_url || null;
 				}
-				feedUrl = fileCache?.frontmatter?.feed_url || null;
-			}
-			let leaf =
-				this.app.workspace.getLeavesOfType(VIEW_TYPE_RHO_READER)[0];
-			if (!leaf) {
-				const rightLeaf = this.app.workspace.getRightLeaf(false);
-				if (!rightLeaf) return;
-				await rightLeaf.setViewState({ type: VIEW_TYPE_RHO_READER });
-				leaf = rightLeaf;
-			}
-			const view = leaf.view as RhoReaderPane;
-			view.setFeedUrl(feedUrl);
-		});
+				let leaf =
+					this.app.workspace.getLeavesOfType(VIEW_TYPE_RHO_READER)[0];
+				if (!leaf) {
+					const rightLeaf = this.app.workspace.getRightLeaf(false);
+					if (!rightLeaf) return;
+					await rightLeaf.setViewState({ type: VIEW_TYPE_RHO_READER });
+					leaf = rightLeaf;
+				}
+				const view = leaf.view as RhoReaderPane;
+				view.setFeedUrl(feedUrl);
+			})
+		);
 
 		this.addSettingTab(new RhoReaderSettingTab(this.app, this));
 
@@ -90,7 +96,39 @@ export default class RhoReader extends Plugin {
 		this.updateStatusBar();
 
 		registerCommands(this);
-		this.clearStaleSyncStatuses();
+		this.app.workspace.onLayoutReady(() => {
+			this.migrateReadState();
+			this.clearStaleSyncStatuses();
+		});
+	}
+
+	private async migrateReadState(): Promise<void> {
+		if (this.settings.readStateMigrated) return;
+
+		// Legacy shape of data.json prior to file-based post storage.
+		type LegacyPostReadState = { read: boolean; readAt?: number };
+		type LegacyReadState = Record<
+			string,
+			Record<string, LegacyPostReadState>
+		>;
+		const legacy = this.settings as { readState?: LegacyReadState };
+		const readState = legacy.readState;
+
+		if (readState) {
+			for (const [feedUrl, readStateForFeed] of Object.entries(readState)) {
+				for (const [postKey, state] of Object.entries(readStateForFeed)) {
+					if (!state.read) continue;
+					const postFile = findExistingPostFile(this, feedUrl, postKey);
+					if (postFile) {
+						await setPostReadState(this, postFile, true, state.readAt);
+					}
+				}
+			}
+		}
+
+		this.settings.readStateMigrated = true;
+		delete legacy.readState;
+		await this.saveSettings();
 	}
 
 	private async clearStaleSyncStatuses(): Promise<void> {
@@ -104,13 +142,29 @@ export default class RhoReader extends Plugin {
 		}
 	}
 
-	onunload() {}
+	onunload() {
+		if (this.saveSettingsTimeout !== null) {
+			window.clearTimeout(this.saveSettingsTimeout);
+			this.saveSettingsTimeout = null;
+			this.saveSettings();
+		}
+		this.app.workspace.detachLeavesOfType(VIEW_TYPE_RHO_READER);
+		this.statusBarItem = null;
+	}
 
 	async loadSettings() {
 		this.settings = Object.assign(
 			{},
 			DEFAULT_SETTINGS,
 			await this.loadData()
+		);
+		this.settings.rhoFolder = normalizeFolderPath(
+			this.settings.rhoFolder,
+			DEFAULT_SETTINGS.rhoFolder
+		);
+		this.settings.syncConcurrency = clampSyncConcurrency(
+			this.settings.syncConcurrency,
+			DEFAULT_SETTINGS.syncConcurrency
 		);
 	}
 
