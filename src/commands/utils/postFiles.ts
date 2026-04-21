@@ -214,6 +214,18 @@ export async function updateFeedCountsFromFiles(
 		}
 	}
 
+	await setFeedCounts(plugin, feedUrl, total, unread);
+}
+
+export async function setFeedCounts(
+	plugin: RhoReader,
+	feedUrl: string,
+	total: number,
+	unread: number
+): Promise<void> {
+	const feedFile = findFileForFeedUrl(plugin, feedUrl);
+	if (!feedFile) return;
+
 	try {
 		const updated = await modifyFrontmatter(plugin, feedFile, (fm) => {
 			fm.rho_all_posts = total;
