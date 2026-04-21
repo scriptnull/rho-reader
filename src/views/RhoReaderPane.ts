@@ -103,13 +103,13 @@ export class RhoReaderPane extends ItemView {
 
 			if (post.link) {
 				card.style.cursor = "pointer";
-				card.addEventListener("click", () => {
+				card.addEventListener("click", async () => {
 					if (
 						this.currentFeedUrl &&
 						!this.plugin.isPostRead(this.currentFeedUrl, post)
 					) {
-						this.plugin.markPostRead(this.currentFeedUrl, post);
 						card.addClass("rho-reader-card--read");
+						await this.plugin.markPostRead(this.currentFeedUrl, post);
 					}
 					window.open(post.link, "_blank");
 				});
