@@ -1,4 +1,4 @@
-import { App, ItemView, Menu, SuggestModal, WorkspaceLeaf, setIcon } from "obsidian";
+import { App, ItemView, Menu, Notice, SuggestModal, WorkspaceLeaf, setIcon } from "obsidian";
 import type RhoReader from "../main";
 import type { FeedPost } from "../types";
 import { syncAllRssFeeds } from "../commands/syncAllRssFeeds";
@@ -104,6 +104,7 @@ export class RhoReaderPane extends ItemView {
 			if (post.link) {
 				card.style.cursor = "pointer";
 				card.addEventListener("click", async () => {
+					new Notice("Opening in browser...");
 					if (
 						this.currentFeedUrl &&
 						!this.plugin.isPostRead(this.currentFeedUrl, post)
