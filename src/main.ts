@@ -18,6 +18,7 @@ import {
 	findExistingPostFile,
 	setPostReadState,
 	updateFeedCountsFromFiles,
+	getFeedCounts,
 	setFeedCounts,
 	createPostFile,
 	findFileForFeedUrl,
@@ -188,6 +189,13 @@ export default class RhoReader extends Plugin {
 
 	async markPostRead(feedUrl: string, post: FeedPost) {
 		post.read = true;
+		const counts = getFeedCounts(this, feedUrl);
+		if (counts) {
+			const hasFile = findExistingPostFile(this, feedUrl, getPostKey(post));
+			const total = hasFile ? counts.total : counts.total + 1;
+			const unread = Math.max(0, counts.unread - 1);
+			setFeedCounts(this, feedUrl, total, unread);
+		}
 		const postKey = getPostKey(post);
 		let file = findExistingPostFile(this, feedUrl, postKey);
 		if (!file) {
@@ -233,6 +241,10 @@ export default class RhoReader extends Plugin {
 
 	async markPostUnread(feedUrl: string, post: FeedPost) {
 		post.read = false;
+		const counts = getFeedCounts(this, feedUrl);
+		if (counts) {
+			setFeedCounts(this, feedUrl, counts.total, counts.unread + 1);
+		}
 		const postKey = getPostKey(post);
 		const file = findExistingPostFile(this, feedUrl, postKey);
 		if (file) {
