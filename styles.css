@@ -124,6 +124,12 @@
 .rho-reader-landing-subtitle {
 	font-size: var(--font-ui-small);
 	color: var(--text-muted);
+	margin-bottom: 4px;
+}
+
+.rho-reader-landing-version {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-faint);
 	margin-bottom: 24px;
 }
 

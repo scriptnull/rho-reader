@@ -394,6 +394,11 @@ export class RhoReaderPane extends ItemView {
 			text: "Reading companion for Obsidian",
 		});
 
+		landing.createEl("div", {
+			cls: "rho-reader-landing-version",
+			text: `v${this.plugin.manifest.version}`,
+		});
+
 		const actions = landing.createEl("div", {
 			cls: "rho-reader-landing-actions",
 		});
