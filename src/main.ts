@@ -65,26 +65,8 @@ export default class RhoReader extends Plugin {
 		);
 
 		this.registerEvent(
-			this.app.workspace.on("file-open", async (file: TFile | null) => {
-				let feedUrl: string | null = null;
-				if (file) {
-					const fileCache = this.app.metadataCache.getFileCache(file);
-					if (fileCache?.frontmatter?.rho_feed_url) {
-						// Post file opened (e.g. via "Take notes") — keep current feed displayed
-						return;
-					}
-					feedUrl = fileCache?.frontmatter?.feed_url || null;
-				}
-				let leaf =
-					this.app.workspace.getLeavesOfType(VIEW_TYPE_RHO_READER)[0];
-				if (!leaf) {
-					const rightLeaf = this.app.workspace.getRightLeaf(false);
-					if (!rightLeaf) return;
-					await rightLeaf.setViewState({ type: VIEW_TYPE_RHO_READER });
-					leaf = rightLeaf;
-				}
-				const view = leaf.view as RhoReaderPane;
-				view.setFeedUrl(feedUrl);
+			this.app.workspace.on("file-open", (file: TFile | null) => {
+				this.openReaderForFile(file);
 			})
 		);
 
@@ -99,7 +81,31 @@ export default class RhoReader extends Plugin {
 		this.app.workspace.onLayoutReady(() => {
 			this.migrateReadState();
 			this.clearStaleSyncStatuses();
+			// Re-open the reader pane for the active file after plugin (re)load,
+			// since `file-open` won't fire for a file that's already open.
+			this.openReaderForFile(this.app.workspace.getActiveFile());
 		});
+	}
+
+	private async openReaderForFile(file: TFile | null): Promise<void> {
+		let feedUrl: string | null = null;
+		if (file) {
+			const fileCache = this.app.metadataCache.getFileCache(file);
+			if (fileCache?.frontmatter?.rho_feed_url) {
+				// Post file opened (e.g. via "Take notes") — keep current feed displayed
+				return;
+			}
+			feedUrl = fileCache?.frontmatter?.feed_url || null;
+		}
+		let leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_RHO_READER)[0];
+		if (!leaf) {
+			const rightLeaf = this.app.workspace.getRightLeaf(false);
+			if (!rightLeaf) return;
+			await rightLeaf.setViewState({ type: VIEW_TYPE_RHO_READER });
+			leaf = rightLeaf;
+		}
+		const view = leaf.view as RhoReaderPane;
+		view.setFeedUrl(feedUrl);
 	}
 
 	private async migrateReadState(): Promise<void> {
