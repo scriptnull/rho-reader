@@ -4,6 +4,10 @@ import {
 	DEFAULT_SETTINGS,
 } from "./settings/settings";
 import {
+	clampSyncConcurrency,
+	normalizeFolderPath,
+} from "./settings/validation";
+import {
 	VIEW_TYPE_RHO_READER,
 	RhoReaderPane,
 } from "./views/RhoReaderPane";
@@ -152,6 +156,14 @@ export default class RhoReader extends Plugin {
 			{},
 			DEFAULT_SETTINGS,
 			await this.loadData()
+		);
+		this.settings.rhoFolder = normalizeFolderPath(
+			this.settings.rhoFolder,
+			DEFAULT_SETTINGS.rhoFolder
+		);
+		this.settings.syncConcurrency = clampSyncConcurrency(
+			this.settings.syncConcurrency,
+			DEFAULT_SETTINGS.syncConcurrency
 		);
 	}
 
