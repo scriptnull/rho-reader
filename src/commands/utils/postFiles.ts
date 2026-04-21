@@ -217,6 +217,21 @@ export async function updateFeedCountsFromFiles(
 	await setFeedCounts(plugin, feedUrl, total, unread);
 }
 
+export function getFeedCounts(
+	plugin: RhoReader,
+	feedUrl: string
+): { total: number; unread: number } | null {
+	const feedFile = findFileForFeedUrl(plugin, feedUrl);
+	if (!feedFile) return null;
+	const cache = plugin.app.metadataCache.getFileCache(feedFile);
+	const fm = cache?.frontmatter;
+	if (!fm) return null;
+	return {
+		total: typeof fm.rho_all_posts === "number" ? fm.rho_all_posts : 0,
+		unread: typeof fm.rho_unread_posts === "number" ? fm.rho_unread_posts : 0,
+	};
+}
+
 export async function setFeedCounts(
 	plugin: RhoReader,
 	feedUrl: string,
