@@ -30,7 +30,6 @@ function createMockPlugin(options: {
 			postsFolder: "Posts",
 			rssFeedBaseFile: "Reader.base",
 			readStateMigrated: false,
-			readState: {},
 			...(options.settings ?? {}),
 		},
 		app: {

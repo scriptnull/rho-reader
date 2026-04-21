@@ -95,7 +95,39 @@ export default class RhoReader extends Plugin {
 		this.updateStatusBar();
 
 		registerCommands(this);
-		this.clearStaleSyncStatuses();
+		this.app.workspace.onLayoutReady(() => {
+			this.migrateReadState();
+			this.clearStaleSyncStatuses();
+		});
+	}
+
+	private async migrateReadState(): Promise<void> {
+		if (this.settings.readStateMigrated) return;
+
+		// Legacy shape of data.json prior to file-based post storage.
+		type LegacyPostReadState = { read: boolean; readAt?: number };
+		type LegacyReadState = Record<
+			string,
+			Record<string, LegacyPostReadState>
+		>;
+		const legacy = this.settings as { readState?: LegacyReadState };
+		const readState = legacy.readState;
+
+		if (readState) {
+			for (const [feedUrl, readStateForFeed] of Object.entries(readState)) {
+				for (const [postKey, state] of Object.entries(readStateForFeed)) {
+					if (!state.read) continue;
+					const postFile = findExistingPostFile(this, feedUrl, postKey);
+					if (postFile) {
+						await setPostReadState(this, postFile, true, state.readAt);
+					}
+				}
+			}
+		}
+
+		this.settings.readStateMigrated = true;
+		delete legacy.readState;
+		await this.saveSettings();
 	}
 
 	private async clearStaleSyncStatuses(): Promise<void> {
