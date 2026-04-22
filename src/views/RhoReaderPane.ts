@@ -4,7 +4,7 @@ import type { FeedPost } from "../types";
 import { syncAllRssFeeds } from "../commands/syncAllRssFeeds";
 import { importOpml } from "../commands/importOpml";
 import { openRssFeedReader } from "../commands/openRssFeedReader";
-import { updateFeedFrontmatter, findFileForFeedUrl, getPostsForFeed, findExistingPostFile, getPostKey, setPostTags, getAllTagsForFeed, setFeedSyncStatus } from "../commands/utils";
+import { updateFeedFrontmatter, findFileForFeedUrl, getPostsForFeed, findExistingPostFile, getPostKey, setPostTags, getAllTagsForFeed, setFeedSyncStatus, enqueuePendingRead, drainPendingReads } from "../commands/utils";
 
 export const VIEW_TYPE_RHO_READER = "rho-reader-pane";
 
@@ -103,7 +103,7 @@ export class RhoReaderPane extends ItemView {
 
 			if (post.link) {
 				card.style.cursor = "pointer";
-				card.addEventListener("click", async () => {
+				card.addEventListener("click", () => {
 					card.addClass("rho-reader-card--opening");
 					const spinner = card.createSpan({
 						cls: "rho-reader-card-spinner",
@@ -113,14 +113,24 @@ export class RhoReaderPane extends ItemView {
 						spinner.remove();
 						card.removeClass("rho-reader-card--opening");
 					}, 1500);
-					if (
-						this.currentFeedUrl &&
-						!this.plugin.isPostRead(this.currentFeedUrl, post)
-					) {
+					const feedUrl = this.currentFeedUrl;
+					const shouldMarkRead =
+						feedUrl && !this.plugin.isPostRead(feedUrl, post);
+					if (shouldMarkRead) {
 						card.addClass("rho-reader-card--read");
-						await this.plugin.markPostRead(this.currentFeedUrl, post);
+						post.read = true;
+						// Persist the intent synchronously before window.open —
+						// on mobile the handoff backgrounds Obsidian and the
+						// vault writes would otherwise never complete.
+						enqueuePendingRead(this.plugin, feedUrl, post);
 					}
+					// Open synchronously so mobile WebViews keep the user-gesture
+					// activation — awaiting async work first causes the first tap
+					// to be ignored and only the second tap opens the link.
 					window.open(post.link, "_blank");
+					if (shouldMarkRead) {
+						void drainPendingReads(this.plugin);
+					}
 				});
 			}
 

@@ -24,6 +24,7 @@ import {
 	findFileForFeedUrl,
 	getPostKey,
 	setFeedSyncStatus,
+	drainPendingReads,
 } from "./commands/utils";
 
 export default class RhoReader extends Plugin {
@@ -79,9 +80,20 @@ export default class RhoReader extends Plugin {
 		this.updateStatusBar();
 
 		registerCommands(this);
+
+		// Resume any mark-read writes that were interrupted when the system
+		// browser backgrounded Obsidian mid-write (mobile) or the app was
+		// killed before the writes completed.
+		this.registerDomEvent(document, "visibilitychange", () => {
+			if (document.visibilityState === "visible") {
+				void drainPendingReads(this);
+			}
+		});
+
 		this.app.workspace.onLayoutReady(() => {
 			this.migrateReadState();
 			this.clearStaleSyncStatuses();
+			void drainPendingReads(this);
 			// Re-open the reader pane for the active file after plugin (re)load,
 			// since `file-open` won't fire for a file that's already open.
 			this.openReaderForFile(this.app.workspace.getActiveFile());

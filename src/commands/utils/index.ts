@@ -21,3 +21,4 @@ export {
 	getFeedCounts,
 	setFeedCounts,
 } from "./postFiles";
+export { enqueuePendingRead, drainPendingReads } from "./pendingReads";
