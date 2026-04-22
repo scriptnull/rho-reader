@@ -10,7 +10,29 @@
 	border: 1px solid var(--background-modifier-border);
 	border-radius: 8px;
 	padding: 12px;
-	transition: box-shadow 0.15s ease;
+	position: relative;
+	transition: box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.rho-reader-card--opening {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+.rho-reader-card-spinner {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--text-muted);
+}
+
+.rho-reader-card-spinner svg {
+	width: 14px;
+	height: 14px;
+	animation: rho-reader-spin 1s linear infinite;
 }
 
 .rho-reader-card:hover {
