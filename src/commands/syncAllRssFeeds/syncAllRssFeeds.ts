@@ -18,7 +18,7 @@ async function syncFeed(
 }
 
 export async function syncAllRssFeeds(plugin: RhoReader): Promise<void> {
-	plugin.setProcessing(true, "Syncing feeds");
+	plugin.statusBar.setProcessing(true, "Syncing feeds");
 	try {
 		const files = plugin.app.vault.getMarkdownFiles();
 		const feedFiles: { file: TFile; feedUrl: string }[] = [];
@@ -53,6 +53,6 @@ export async function syncAllRssFeeds(plugin: RhoReader): Promise<void> {
 		);
 		await Promise.all(workers);
 	} finally {
-		plugin.setProcessing(false);
+		plugin.statusBar.setProcessing(false);
 	}
 }

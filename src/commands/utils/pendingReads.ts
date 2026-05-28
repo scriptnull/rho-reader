@@ -1,6 +1,7 @@
 import type RhoReader from "../../main";
 import type { FeedPost } from "../../types";
 import { getPostKey } from "./postFiles";
+import { markPostRead } from "./readState";
 
 type PendingReadEntry = {
 	feedUrl: string;
@@ -72,7 +73,7 @@ async function runDrain(plugin: RhoReader): Promise<void> {
 		const entry = queue[0];
 		const key = entryKey(entry);
 		try {
-			await plugin.markPostRead(entry.feedUrl, entry.post);
+			await markPostRead(plugin, entry.feedUrl, entry.post);
 		} catch (err) {
 			console.error("[Rho Reader] pending read drain failed:", err);
 		}

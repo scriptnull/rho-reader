@@ -3,7 +3,7 @@ import type RhoReader from "../../main";
 import { serializeOpml, OpmlFeed } from "../utils/parseOpml";
 
 export async function exportOpml(plugin: RhoReader): Promise<void> {
-	plugin.setProcessing(true, "Exporting OPML");
+	plugin.statusBar.setProcessing(true, "Exporting OPML");
 	try {
 		const feeds: OpmlFeed[] = [];
 		const files = plugin.app.vault.getMarkdownFiles();
@@ -42,6 +42,6 @@ export async function exportOpml(plugin: RhoReader): Promise<void> {
 		console.error("Failed to export OPML:", err);
 		new Notice("Failed to export OPML file.");
 	} finally {
-		plugin.setProcessing(false);
+		plugin.statusBar.setProcessing(false);
 	}
 }

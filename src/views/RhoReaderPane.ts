@@ -4,7 +4,7 @@ import type { FeedPost } from "../types";
 import { syncAllRssFeeds } from "../commands/syncAllRssFeeds";
 import { importOpml } from "../commands/importOpml";
 import { openRssFeedReader } from "../commands/openRssFeedReader";
-import { updateFeedFrontmatter, findFileForFeedUrl, getPostsForFeed, findExistingPostFile, getPostKey, setPostTags, getAllTagsForFeed, setFeedSyncStatus, enqueuePendingRead, drainPendingReads } from "../commands/utils";
+import { updateFeedFrontmatter, findFileForFeedUrl, getPostsForFeed, findExistingPostFile, getPostKey, setPostTags, getAllTagsForFeed, setFeedSyncStatus, enqueuePendingRead, drainPendingReads, markPostRead, markPostUnread, markAllPostsRead, setFeedCounts } from "../commands/utils";
 
 export const VIEW_TYPE_RHO_READER = "rho-reader-pane";
 
@@ -93,9 +93,7 @@ export class RhoReaderPane extends ItemView {
 
 		const list = container.createEl("div", { cls: "rho-reader-posts" });
 		for (const post of this.posts) {
-			const isRead =
-				this.currentFeedUrl &&
-				this.plugin.isPostRead(this.currentFeedUrl, post);
+			const isRead = this.currentFeedUrl && post.read === true;
 
 			const card = list.createEl("div", {
 				cls: `rho-reader-card${isRead ? " rho-reader-card--read" : ""}`,
@@ -114,8 +112,7 @@ export class RhoReaderPane extends ItemView {
 						card.removeClass("rho-reader-card--opening");
 					}, 1500);
 					const feedUrl = this.currentFeedUrl;
-					const shouldMarkRead =
-						feedUrl && !this.plugin.isPostRead(feedUrl, post);
+					const shouldMarkRead = feedUrl && post.read !== true;
 					if (shouldMarkRead) {
 						card.addClass("rho-reader-card--read");
 						post.read = true;
@@ -139,10 +136,7 @@ export class RhoReaderPane extends ItemView {
 				if (!this.currentFeedUrl) return;
 
 				const menu = new Menu();
-				const currentlyRead = this.plugin.isPostRead(
-					this.currentFeedUrl,
-					post
-				);
+				const currentlyRead = post.read === true;
 
 				if (currentlyRead) {
 					menu.addItem((item) =>
@@ -150,7 +144,8 @@ export class RhoReaderPane extends ItemView {
 							.setTitle("Mark as unread")
 							.setIcon("eye-off")
 							.onClick(() => {
-								this.plugin.markPostUnread(
+								markPostUnread(
+									this.plugin,
 									this.currentFeedUrl!,
 									post
 								);
@@ -163,7 +158,8 @@ export class RhoReaderPane extends ItemView {
 							.setTitle("Mark as read")
 							.setIcon("eye")
 							.onClick(() => {
-								this.plugin.markPostRead(
+								markPostRead(
+									this.plugin,
 									this.currentFeedUrl!,
 									post
 								);
@@ -370,13 +366,14 @@ export class RhoReaderPane extends ItemView {
 		}
 		this.render();
 		if (unreadCount > 0) {
-			this.plugin.setFeedCountsDirect(
+			setFeedCounts(
+				this.plugin,
 				this.currentFeedUrl,
 				this.posts.length,
 				0
 			);
 		}
-		this.plugin.persistAllPostsRead(this.currentFeedUrl, this.posts);
+		markAllPostsRead(this.plugin, this.currentFeedUrl, this.posts);
 	}
 
 	renderEmptyState(container: HTMLElement) {

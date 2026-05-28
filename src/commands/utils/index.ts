@@ -22,3 +22,8 @@ export {
 	setFeedCounts,
 } from "./postFiles";
 export { enqueuePendingRead, drainPendingReads } from "./pendingReads";
+export {
+	markPostRead,
+	markPostUnread,
+	markAllPostsRead,
+} from "./readState";

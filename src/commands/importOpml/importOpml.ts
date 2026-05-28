@@ -75,7 +75,7 @@ async function performImport(
 ): Promise<void> {
 	await openRssFeedReader(plugin);
 	await openReaderPane(plugin);
-	plugin.setProcessing(true, "Importing OPML");
+	plugin.statusBar.setProcessing(true, "Importing OPML");
 	try {
 		const feedsFolder = `${plugin.settings.rhoFolder}/Feeds`;
 		const postsFolder = `${plugin.settings.rhoFolder}/${plugin.settings.postsFolder}`;
@@ -132,7 +132,7 @@ async function performImport(
 		console.error("Failed to import OPML:", err);
 		new Notice("Failed to import OPML file.");
 	} finally {
-		plugin.setProcessing(false);
+		plugin.statusBar.setProcessing(false);
 	}
 }
 
