@@ -47,7 +47,7 @@ export class RhoReaderSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName("RSS Feed Bases")
+			.setName("RSS feed bases")
 			.setDesc("Obsidian Bases file used to organise the RSS feeds.")
 			.addText((text) =>
 				text
