@@ -54,10 +54,6 @@ export default class RhoReader extends Plugin {
 		});
 	}
 
-	onunload() {
-		this.app.workspace.detachLeavesOfType(VIEW_TYPE_RHO_READER);
-	}
-
 	async loadSettings() {
 		this.settings = Object.assign(
 			{},
