@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rho Reader — Obsidian Community Plugin Launch Checklist</title>
+<style>
+	:root {
+		--bg: #0f1115;
+		--panel: #171a21;
+		--panel-2: #1d212b;
+		--border: #2a2f3a;
+		--text: #e6e8ec;
+		--muted: #9aa3b2;
+		--accent: #7f6df2;
+		--accent-2: #5b8def;
+		--critical: #ef4444;
+		--warn: #f59e0b;
+		--info: #38bdf8;
+		--ok: #22c55e;
+		--mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
+	}
+	* { box-sizing: border-box; }
+	html, body {
+		margin: 0;
+		background: var(--bg);
+		color: var(--text);
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+		line-height: 1.55;
+	}
+	.wrap {
+		max-width: 1080px;
+		margin: 0 auto;
+		padding: 48px 24px 96px;
+	}
+	header.hero {
+		border: 1px solid var(--border);
+		border-radius: 16px;
+		padding: 28px 28px 24px;
+		background: linear-gradient(135deg, rgba(127,109,242,0.12), rgba(91,141,239,0.06));
+		margin-bottom: 32px;
+	}
+	header.hero h1 {
+		margin: 0 0 6px;
+		font-size: 28px;
+		letter-spacing: -0.01em;
+	}
+	header.hero p {
+		margin: 0;
+		color: var(--muted);
+		font-size: 15px;
+	}
+	.meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin-top: 16px;
+	}
+	.chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		font-size: 12px;
+		padding: 4px 10px;
+		border-radius: 999px;
+		border: 1px solid var(--border);
+		background: var(--panel-2);
+		color: var(--muted);
+	}
+	.chip.repo { color: var(--text); }
+	.chip strong { color: var(--text); font-weight: 600; }
+
+	.summary {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 12px;
+		margin-bottom: 32px;
+	}
+	.stat {
+		border: 1px solid var(--border);
+		border-radius: 12px;
+		padding: 14px 16px;
+		background: var(--panel);
+	}
+	.stat .n {
+		font-size: 24px;
+		font-weight: 700;
+		letter-spacing: -0.02em;
+	}
+	.stat .l {
+		font-size: 12px;
+		color: var(--muted);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+	.stat.crit .n { color: var(--critical); }
+	.stat.rec  .n { color: var(--warn); }
+	.stat.nice .n { color: var(--info); }
+	.stat.subm .n { color: var(--accent); }
+
+	section.group { margin-bottom: 36px; }
+	section.group > h2 {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		font-size: 18px;
+		margin: 0 0 14px;
+		padding-bottom: 10px;
+		border-bottom: 1px solid var(--border);
+	}
+	section.group > h2 .dot {
+		width: 10px; height: 10px; border-radius: 50%;
+	}
+	.dot.crit { background: var(--critical); box-shadow: 0 0 12px rgba(239,68,68,0.6); }
+	.dot.rec  { background: var(--warn);     box-shadow: 0 0 12px rgba(245,158,11,0.5); }
+	.dot.nice { background: var(--info);     box-shadow: 0 0 12px rgba(56,189,248,0.5); }
+	.dot.subm { background: var(--accent);   box-shadow: 0 0 12px rgba(127,109,242,0.5); }
+
+	.item {
+		border: 1px solid var(--border);
+		border-radius: 12px;
+		background: var(--panel);
+		padding: 18px 20px;
+		margin-bottom: 12px;
+	}
+	.item header {
+		display: flex;
+		align-items: flex-start;
+		gap: 12px;
+		margin-bottom: 8px;
+	}
+	.item header .num {
+		font-family: var(--mono);
+		font-size: 12px;
+		color: var(--muted);
+		background: var(--panel-2);
+		border: 1px solid var(--border);
+		border-radius: 6px;
+		padding: 2px 8px;
+		flex-shrink: 0;
+	}
+	.item header h3 {
+		margin: 0;
+		font-size: 16px;
+		flex: 1;
+	}
+	.tag {
+		display: inline-block;
+		font-size: 11px;
+		font-weight: 600;
+		padding: 2px 8px;
+		border-radius: 999px;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+	.tag.crit { background: rgba(239,68,68,0.12); color: #fca5a5; border: 1px solid rgba(239,68,68,0.35); }
+	.tag.rec  { background: rgba(245,158,11,0.12); color: #fcd34d; border: 1px solid rgba(245,158,11,0.35); }
+	.tag.nice { background: rgba(56,189,248,0.12); color: #7dd3fc; border: 1px solid rgba(56,189,248,0.35); }
+	.tag.subm { background: rgba(127,109,242,0.14); color: #c4b5fd; border: 1px solid rgba(127,109,242,0.35); }
+
+	.where {
+		font-family: var(--mono);
+		font-size: 12.5px;
+		color: var(--muted);
+		margin: 6px 0 10px;
+	}
+	.where code {
+		background: var(--panel-2);
+		border: 1px solid var(--border);
+		padding: 1px 6px;
+		border-radius: 4px;
+		color: var(--text);
+	}
+	.item p { margin: 8px 0; }
+	.item .label {
+		font-size: 12px;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--muted);
+		margin-top: 12px;
+		margin-bottom: 4px;
+	}
+	pre {
+		background: #0a0c10;
+		border: 1px solid var(--border);
+		border-radius: 8px;
+		padding: 12px 14px;
+		overflow-x: auto;
+		margin: 6px 0 0;
+		font-family: var(--mono);
+		font-size: 12.5px;
+		line-height: 1.5;
+	}
+	pre.diff .add { color: #86efac; display: block; }
+	pre.diff .rem { color: #fca5a5; display: block; }
+	pre.diff .ctx { color: var(--muted); display: block; }
+	code.inline {
+		background: var(--panel-2);
+		border: 1px solid var(--border);
+		padding: 1px 6px;
+		border-radius: 4px;
+		font-family: var(--mono);
+		font-size: 12.5px;
+	}
+	a { color: var(--accent-2); }
+	ul.bare { padding-left: 18px; margin: 6px 0; }
+	ul.bare li { margin: 4px 0; }
+	.callout {
+		border-left: 3px solid var(--accent);
+		background: rgba(127,109,242,0.08);
+		padding: 10px 14px;
+		border-radius: 0 8px 8px 0;
+		margin: 12px 0 0;
+		font-size: 14px;
+	}
+	footer {
+		margin-top: 48px;
+		color: var(--muted);
+		font-size: 13px;
+		text-align: center;
+	}
+	@media (max-width: 720px) {
+		.summary { grid-template-columns: repeat(2, 1fr); }
+	}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+	<header class="hero">
+		<h1>Rho Reader — Launch Checklist</h1>
+		<p>Things to fix before submitting to the <strong>Obsidian Community Plugins</strong> directory.</p>
+		<div class="meta">
+			<span class="chip repo">Repo: <strong>scriptnull/rho-reader</strong></span>
+			<span class="chip">Current version: <strong>0.4.0</strong></span>
+			<span class="chip">minAppVersion: <strong>0.15.0</strong></span>
+			<span class="chip">Mobile: <strong>isDesktopOnly: false</strong></span>
+		</div>
+	</header>
+
+	<div class="summary">
+		<div class="stat crit"><div class="n">5</div><div class="l">Critical (blocking)</div></div>
+		<div class="stat rec"><div class="n">6</div><div class="l">Recommended</div></div>
+		<div class="stat nice"><div class="n">4</div><div class="l">Nice to have</div></div>
+		<div class="stat subm"><div class="n">4</div><div class="l">Submission steps</div></div>
+	</div>
+
+	<!-- CRITICAL -->
+	<section class="group">
+		<h2><span class="dot crit"></span> Critical — must fix before opening the submission PR</h2>
+
+		<div class="item">
+			<header>
+				<span class="num">C1</span>
+				<h3>Release zip wraps assets in a folder — Obsidian's review bot expects flat files</h3>
+				<span class="tag crit">Critical</span>
+			</header>
+			<div class="where">📁 <code>.github/workflows/release.yml</code> lines 29–33</div>
+			<p>Obsidian's review tooling (and the BRAT installer) downloads <code class="inline">main.js</code>, <code class="inline">manifest.json</code>, and <code class="inline">styles.css</code> directly from the release assets. Your release currently uploads a <code class="inline">rho-reader.zip</code> that contains a <em>nested folder</em>, and does not upload the three files as standalone assets.</p>
+			<p class="label">Required</p>
+			<ul class="bare">
+				<li>Attach <code class="inline">main.js</code>, <code class="inline">manifest.json</code>, and <code class="inline">styles.css</code> as <strong>top-level assets</strong> on the GitHub release (in addition to or instead of the zip).</li>
+				<li>If you keep the zip, it must contain those files at the <strong>root</strong>, not inside a <code class="inline">rho-reader/</code> folder.</li>
+			</ul>
+			<p class="label">Suggested workflow fix</p>
+<pre class="diff"><span class="rem">-     - name: Create plugin zip</span>
+<span class="rem">-       run: |</span>
+<span class="rem">-         mkdir -p rho-reader</span>
+<span class="rem">-         cp main.js manifest.json styles.css rho-reader/</span>
+<span class="rem">-         zip -r rho-reader.zip rho-reader</span>
+<span class="add">+     - name: Create plugin zip</span>
+<span class="add">+       run: zip rho-reader.zip main.js manifest.json styles.css</span>
+<span class="ctx">      - name: Create draft release</span>
+<span class="ctx">        uses: softprops/action-gh-release@v2</span>
+<span class="ctx">        with:</span>
+<span class="ctx">          draft: true</span>
+<span class="rem">-         files: rho-reader.zip</span>
+<span class="add">+         files: |</span>
+<span class="add">+           main.js</span>
+<span class="add">+           manifest.json</span>
+<span class="add">+           styles.css</span>
+<span class="add">+           rho-reader.zip</span>
+<span class="ctx">          generate_release_notes: true</span></pre>
+		</div>
+
+		<div class="item">
+			<header>
+				<span class="num">C2</span>
+				<h3>Don't detach leaves in <code class="inline">onunload</code></h3>
+				<span class="tag crit">Critical</span>
+			</header>
+			<div class="where">📁 <code>src/main.ts:57-59</code></div>
+			<p>The plugin guidelines explicitly call this out as an anti-pattern: <em>"Don't detach leaves in onunload"</em>. Obsidian handles tearing down plugin views automatically, and detaching them yourself loses the user's layout when the plugin is updated or reloaded.</p>
+			<p class="label">Fix</p>
+<pre class="diff"><span class="rem">-	onunload() {</span>
+<span class="rem">-		this.app.workspace.detachLeavesOfType(VIEW_TYPE_RHO_READER);</span>
+<span class="rem">-	}</span></pre>
+			<p>Remove the entire <code class="inline">onunload</code> override (or leave it empty if you intend to add cleanup later).</p>
+		</div>
+
+		<div class="item">
+			<header>
+				<span class="num">C3</span>
+				<h3>Command and setting names must use sentence case</h3>
+				<span class="tag crit">Critical</span>
+			</header>
+			<div class="where">📁 <code>src/commands/register.ts</code>, <code>src/settings/RhoReaderSettingTab.ts</code></div>
+			<p>Obsidian's style guide requires <strong>sentence case</strong> for command names, setting names, and headings. Reviewers flag this on nearly every submission.</p>
+			<p class="label">Rename</p>
+			<ul class="bare">
+				<li><code class="inline">"Open RSS Feed Reader"</code> → <code class="inline">"Open RSS feed reader"</code> &nbsp;<span style="color:var(--muted)">(commands/register.ts:16)</span></li>
+				<li><code class="inline">"Sync RSS feeds"</code> ✅ already correct</li>
+				<li><code class="inline">"Import OPML"</code> / <code class="inline">"Export OPML"</code> ✅ (OPML is an acronym)</li>
+				<li>Setting <code class="inline">"RSS Feed Bases"</code> → <code class="inline">"RSS feed bases"</code> &nbsp;<span style="color:var(--muted)">(RhoReaderSettingTab.ts:50)</span></li>
+			</ul>
+			<p>Also: Obsidian no longer wants you to call <code class="inline">addCommand</code> with a command ID containing the plugin name — keep IDs short (current IDs are fine).</p>
+		</div>
+
+		<div class="item">
+			<header>
+				<span class="num">C4</span>
+				<h3><code class="inline">minAppVersion</code> is too old for the APIs you use</h3>
+				<span class="tag crit">Critical</span>
+			</header>
+			<div class="where">📁 <code>manifest.json</code> line 5, <code>versions.json</code></div>
+			<p>You declare <code class="inline">"minAppVersion": "0.15.0"</code>, but the plugin is <em>built on top of Obsidian Bases</em> (per your README), which only shipped in Obsidian <strong>1.9+</strong>. A user on 0.15 would crash on the first feed open.</p>
+			<p class="label">Fix</p>
+<pre class="diff"><span class="rem">-	"minAppVersion": "0.15.0",</span>
+<span class="add">+	"minAppVersion": "1.9.0",</span></pre>
+			<p>Update <code class="inline">versions.json</code> to mirror it. Reviewers verify the declared minimum matches the APIs you actually call.</p>
+		</div>
+
+		<div class="item">
+			<header>
+				<span class="num">C5</span>
+				<h3>README installation steps will be wrong post-release</h3>
+				<span class="tag crit">Critical</span>
+			</header>
+			<div class="where">📁 <code>README.md</code></div>
+			<p>The README still says <em>"Rho Reader is under active development and not yet published in the Obsidian community plugin store. So you'll need to install it manually."</em> Reviewers expect the README to describe how to install <em>after</em> approval (from <strong>Community plugins → Browse</strong>) and the manual instructions need to match the new zip layout from C1.</p>
+			<p class="label">Update README to include</p>
+			<ul class="bare">
+				<li>Primary install path: <em>Settings → Community plugins → Browse → search "Rho Reader"</em>.</li>
+				<li>Manual install: download <code class="inline">main.js</code>, <code class="inline">manifest.json</code>, <code class="inline">styles.css</code> from the latest release into <code class="inline">&lt;vault&gt;/.obsidian/plugins/rho-reader/</code>. (No more "extract folder from zip".)</li>
+				<li>At least one screenshot of the reader pane — heavily recommended for directory listing.</li>
+			</ul>
+		</div>
+	</section>
+
+	<!-- RECOMMENDED -->
+	<section class="group">
+		<h2><span class="dot rec"></span> Recommended — reviewers will likely ask for these</h2>
+
+		<div class="item">
+			<header>
+				<span class="num">R1</span>
+				<h3>Trim <code class="inline">console.error</code> noise</h3>
+				<span class="tag rec">Recommended</span>
+			</header>
+			<div class="where">~18 call sites across <code>src/commands/**</code> and <code>src/views/RhoReaderPane.ts</code></div>
+			<p>Reviewers flag plugins that log freely to the dev console. The pattern they prefer: surface failures via <code class="inline">new Notice(...)</code> for the user, and either drop the <code class="inline">console.error</code> or gate it behind a debug flag. Several of yours (e.g. <code class="inline">syncRssFeed.ts:9,15</code>) log expected/empty-state conditions, which is the most-flagged variant.</p>
+		</div>
+
+		<div class="item">
+			<header>
+				<span class="num">R2</span>
+				<h3>Add <code class="inline">fundingUrl</code> to the manifest (optional but expected)</h3>
+				<span class="tag rec">Recommended</span>
+			</header>
+			<div class="where">📁 <code>manifest.json</code></div>
+<pre class="diff"><span class="ctx">	"authorUrl": "https://vishnubharathi.codes/",</span>
+<span class="add">+	"fundingUrl": "https://github.com/sponsors/scriptnull",</span>
+<span class="ctx">	"isDesktopOnly": false</span></pre>
+			<p>Remove entirely if you have no funding link — empty string is worse than omission.</p>
+		</div>
+
+		<div class="item">
+			<header>
+				<span class="num">R3</span>
+				<h3>Description should not end with a period</h3>
+				<span class="tag rec">Recommended</span>
+			</header>
+			<div class="where">📁 <code>manifest.json:4</code>, <code>package.json:4</code></div>
+			<p>Convention for the directory listing: short, no trailing period.</p>
+<pre class="diff"><span class="rem">-	"description": "Read and manage RSS feeds.",</span>
+<span class="add">+	"description": "Read and manage RSS feeds",</span></pre>
+		</div>
+
+		<div class="item">
+			<header>
+				<span class="num">R4</span>
+				<h3>Verify true mobile support</h3>
+				<span class="tag rec">Recommended</span>
+			</header>
+			<p>You declare <code class="inline">isDesktopOnly: false</code>. Your code is clean (no <code class="inline">fs</code>/<code class="inline">child_process</code>/Node imports, uses <code class="inline">requestUrl</code> for cross-origin RSS fetches ✅). Before submitting, actually install the plugin on Obsidian Mobile (iOS or Android) and walk through: add feed → sync → open reader pane → mark read → OPML import. The reviewer may ask "have you tested mobile?" and the answer should be yes.</p>
+		</div>
+
+		<div class="item">
+			<header>
+				<span class="num">R5</span>
+				<h3>Author field is empty in <code class="inline">package.json</code></h3>
+				<span class="tag rec">Recommended</span>
+			</header>
+			<div class="where">📁 <code>package.json:8</code></div>
+			<p>Keep it consistent with <code class="inline">manifest.json</code>:</p>
+<pre class="diff"><span class="rem">-	"author": "",</span>
+<span class="add">+	"author": "Vishnu Bharathi",</span></pre>
+		</div>
+
+		<div class="item">
+			<header>
+				<span class="num">R6</span>
+				<h3>Tighten error UX in network paths</h3>
+				<span class="tag rec">Recommended</span>
+			</header>
+			<p>RSS fetches can fail in many ways (DNS, 4xx/5xx, malformed XML). Today most failures fall through to <code class="inline">console.error</code> only; the user sees nothing happen. Surface a single <code class="inline">Notice</code> ("Couldn't sync <em>feed name</em>") per failure. Reviewers occasionally cite "silent failure" as a UX defect.</p>
+		</div>
+	</section>
+
+	<!-- NICE TO HAVE -->
+	<section class="group">
+		<h2><span class="dot nice"></span> Nice to have — polish that helps adoption</h2>
+
+		<div class="item">
+			<header>
+				<span class="num">N1</span>
+				<h3>Add screenshots / a short GIF to the README</h3>
+				<span class="tag nice">Nice</span>
+			</header>
+			<p>The banner is great. One in-app screenshot (reader pane + feed list) materially increases install rate in the directory.</p>
+		</div>
+
+		<div class="item">
+			<header>
+				<span class="num">N2</span>
+				<h3>Pin a ribbon icon (or document why you don't)</h3>
+				<span class="tag nice">Nice</span>
+			</header>
+			<p>Most reader-style plugins register an icon via <code class="inline">addRibbonIcon</code> for the "Open RSS feed reader" command. Optional, but expected by users browsing the directory.</p>
+		</div>
+
+		<div class="item">
+			<header>
+				<span class="num">N3</span>
+				<h3>Add an Obsidian-only smoke test in CI</h3>
+				<span class="tag nice">Nice</span>
+			</header>
+			<p>Your <code class="inline">test.yml</code> runs vitest — good. Consider also running <code class="inline">npm run build</code> on every PR so a broken <code class="inline">tsc -noEmit</code> blocks merges.</p>
+		</div>
+
+		<div class="item">
+			<header>
+				<span class="num">N4</span>
+				<h3>Document the Bases dependency prominently</h3>
+				<span class="tag nice">Nice</span>
+			</header>
+			<p>"Built on top of Obsidian Bases" is in the feature list, but a one-line note near the top — "Requires Obsidian 1.9+ with Bases enabled" — pre-empts the most likely support question.</p>
+		</div>
+	</section>
+
+	<!-- SUBMISSION -->
+	<section class="group">
+		<h2><span class="dot subm"></span> Submission process (after the above is fixed)</h2>
+
+		<div class="item">
+			<header>
+				<span class="num">S1</span>
+				<h3>Cut a clean v1.0.0 release</h3>
+				<span class="tag subm">Submission</span>
+			</header>
+			<p>The directory expects a tagged release that matches <code class="inline">manifest.json</code>'s <code class="inline">version</code>. Convention is to bump from 0.x to <strong>1.0.0</strong> at directory submission so it doesn't read as pre-release.</p>
+<pre>npm version 1.0.0
+git push --follow-tags</pre>
+			<p>Your <code class="inline">version-bump.mjs</code> + <code class="inline">npm version</code> script already updates <code class="inline">manifest.json</code> and <code class="inline">versions.json</code> — confirm the workflow uploads <code class="inline">main.js</code>, <code class="inline">manifest.json</code>, <code class="inline">styles.css</code> as top-level assets (see C1).</p>
+		</div>
+
+		<div class="item">
+			<header>
+				<span class="num">S2</span>
+				<h3>Open a PR against <code class="inline">obsidianmd/obsidian-releases</code></h3>
+				<span class="tag subm">Submission</span>
+			</header>
+			<p>Add a single entry at the <strong>end</strong> of <code class="inline">community-plugins.json</code>:</p>
+<pre>{
+  "id": "rho-reader",
+  "name": "Rho Reader",
+  "author": "Vishnu Bharathi",
+  "description": "Read and manage RSS feeds",
+  "repo": "scriptnull/rho-reader"
+}</pre>
+			<p>PR title format the reviewers expect: <code class="inline">Add Rho Reader plugin</code>. Fill in the PR template checkboxes honestly — checking boxes you haven't done is the #1 cause of bot rejections.</p>
+		</div>
+
+		<div class="item">
+			<header>
+				<span class="num">S3</span>
+				<h3>Pass the validation bot</h3>
+				<span class="tag subm">Submission</span>
+			</header>
+			<p>Once the PR is open, the <strong>obsidian-plugin-review</strong> GitHub action runs automatically. It will fail on, in this order: missing release assets (C1), version mismatch between tag and manifest, missing fields. Fix-forward in the same PR — don't open a new one.</p>
+		</div>
+
+		<div class="item">
+			<header>
+				<span class="num">S4</span>
+				<h3>Be ready for the human reviewer pass</h3>
+				<span class="tag subm">Submission</span>
+			</header>
+			<p>Median wait is 1–6 weeks. Common asks: sentence case (C3), <code class="inline">onunload</code> cleanup (C2), <code class="inline">innerHTML</code> usage (you're clean ✅), CSS variables (you're clean ✅), and "did you test on mobile?" (R4). Reply in-thread, push fixes to the same plugin release tag (delete + re-tag is OK), and ping the reviewer with a comment when you push.</p>
+		</div>
+	</section>
+
+	<div class="callout">
+		<strong>One-line summary:</strong> the plugin's code quality is in good shape (no <code class="inline">innerHTML</code>, no Node APIs, uses <code class="inline">requestUrl</code>, CSS uses theme variables). The blockers are mostly packaging and naming hygiene — C1 through C5 above. Knock those out, cut a 1.0.0 release, and open the PR.
+	</div>
+
+	<footer>
+		Generated for <strong>scriptnull/rho-reader</strong> · checklist based on the current state of <code class="inline">main</code>.
+	</footer>
+</div>
+</body>
+</html>
