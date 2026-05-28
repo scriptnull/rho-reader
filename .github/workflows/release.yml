@@ -27,14 +27,15 @@ jobs:
         run: npm run build
 
       - name: Create plugin zip
-        run: |
-          mkdir -p rho-reader
-          cp main.js manifest.json styles.css rho-reader/
-          zip -r rho-reader.zip rho-reader
+        run: zip rho-reader.zip main.js manifest.json styles.css
 
       - name: Create draft release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
-          files: rho-reader.zip
+          files: |
+            main.js
+            manifest.json
+            styles.css
+            rho-reader.zip
           generate_release_notes: true
