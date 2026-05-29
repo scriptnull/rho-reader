@@ -1,7 +1,7 @@
 {
 	"name": "rho-reader",
 	"version": "0.4.0",
-	"description": "Read and manage RSS feeds.",
+	"description": "Read and manage RSS feeds",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
@@ -12,7 +12,7 @@
 		"version": "node version-bump.mjs && git add manifest.json versions.json"
 	},
 	"keywords": [],
-	"author": "",
+	"author": "Vishnu Bharathi",
 	"license": "MIT",
 	"devDependencies": {
 		"@types/js-yaml": "^4.0.9",
