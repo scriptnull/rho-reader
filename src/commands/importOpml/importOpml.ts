@@ -2,6 +2,7 @@ import { Notice, TFile } from "obsidian";
 import * as yaml from "js-yaml";
 import type RhoReader from "../../main";
 import { parseOpml, updateFeedFrontmatter, setFeedSyncStatus } from "../utils";
+import { logError } from "../../log";
 import {
 	ImportOpmlModal,
 	FeedToImport,
@@ -115,7 +116,7 @@ async function performImport(
 					await updateFeedFrontmatter(plugin, feed.xmlUrl, createdFile);
 					await setFeedSyncStatus(plugin, createdFile, "synced");
 				} catch (err) {
-					console.error(`Failed to sync imported feed ${feed.xmlUrl}:`, err);
+					logError(`Failed to sync imported feed ${feed.xmlUrl}:`, err);
 					await setFeedSyncStatus(plugin, createdFile, "error");
 				}
 				// Ensure per-feed posts folder exists
@@ -129,7 +130,7 @@ async function performImport(
 
 		new Notice(`Imported ${imported} feed${imported !== 1 ? "s" : ""}.`);
 	} catch (err) {
-		console.error("Failed to import OPML:", err);
+		logError("Failed to import OPML:", err);
 		new Notice("Failed to import OPML file.");
 	} finally {
 		plugin.statusBar.setProcessing(false);
@@ -161,7 +162,7 @@ export async function importOpml(plugin: RhoReader): Promise<void> {
 				performImport(plugin, preview.toImport);
 			}).open();
 		} catch (err) {
-			console.error("Failed to parse OPML:", err);
+			logError("Failed to parse OPML:", err);
 			new Notice("Failed to parse OPML file.");
 		}
 	};

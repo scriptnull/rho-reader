@@ -2,6 +2,7 @@ import type RhoReader from "../../main";
 import type { FeedPost } from "../../types";
 import { getPostKey } from "./postFiles";
 import { markPostRead } from "./readState";
+import { logError } from "../../log";
 
 type PendingReadEntry = {
 	feedUrl: string;
@@ -35,7 +36,7 @@ function writeQueue(plugin: RhoReader, queue: PendingReadEntry[]): void {
 	try {
 		localStorage.setItem(storageKey(plugin), JSON.stringify(queue));
 	} catch (err) {
-		console.error("[Rho Reader] Failed to persist pending reads:", err);
+		logError("Failed to persist pending reads:", err);
 	}
 }
 
@@ -75,7 +76,7 @@ async function runDrain(plugin: RhoReader): Promise<void> {
 		try {
 			await markPostRead(plugin, entry.feedUrl, entry.post);
 		} catch (err) {
-			console.error("[Rho Reader] pending read drain failed:", err);
+			logError("pending read drain failed:", err);
 		}
 		const current = readQueue(plugin);
 		writeQueue(

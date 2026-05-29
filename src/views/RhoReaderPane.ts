@@ -5,6 +5,7 @@ import { syncAllRssFeeds } from "../commands/syncAllRssFeeds";
 import { importOpml } from "../commands/importOpml";
 import { openRssFeedReader } from "../commands/openRssFeedReader";
 import { updateFeedFrontmatter, findFileForFeedUrl, getPostsForFeed, findExistingPostFile, getPostKey, setPostTags, getAllTagsForFeed, setFeedSyncStatus, enqueuePendingRead, drainPendingReads, markPostRead, markPostUnread, markAllPostsRead, setFeedCounts } from "../commands/utils";
+import { logError } from "../log";
 
 export const VIEW_TYPE_RHO_READER = "rho-reader-pane";
 
@@ -480,7 +481,7 @@ export class RhoReaderPane extends ItemView {
 				);
 				await setFeedSyncStatus(this.plugin, file, "synced");
 			} catch (err) {
-				console.error("Failed to sync feed:", err);
+				logError("Failed to sync feed:", err);
 				await setFeedSyncStatus(this.plugin, file, "error");
 			}
 		}

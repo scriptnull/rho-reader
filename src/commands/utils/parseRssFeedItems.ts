@@ -1,6 +1,7 @@
 import type { FeedPost } from "../../types";
 import { parseJsonFeedItems } from "./parseJsonFeedItems";
 import { resolveUrl } from "./resolveUrl";
+import { logError } from "../../log";
 
 export function parseRssFeedItems(text: string, feedUrl: string): FeedPost[] {
 	// Detect JSON Feed format before attempting XML parsing
@@ -26,11 +27,7 @@ export function parseRssFeedItems(text: string, feedUrl: string): FeedPost[] {
 		xmlDoc = parser.parseFromString(text, "text/html");
 		parserError = xmlDoc.querySelector("parsererror");
 		if (parserError) {
-			console.error(
-				"[Rho Reader] RSS XML parse error:",
-				feedUrl,
-				parserError.textContent
-			);
+			logError("RSS XML parse error:", feedUrl, parserError.textContent);
 			return [];
 		}
 	}
@@ -39,10 +36,7 @@ export function parseRssFeedItems(text: string, feedUrl: string): FeedPost[] {
 	const entries = xmlDoc.querySelectorAll("entry");
 
 	if (items.length === 0 && entries.length === 0) {
-		console.error(
-			"[Rho Reader] No <item> or <entry> elements found in feed:",
-			feedUrl
-		);
+		logError("No <item> or <entry> elements found in feed:", feedUrl);
 		return [];
 	}
 

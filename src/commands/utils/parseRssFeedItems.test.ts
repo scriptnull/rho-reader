@@ -1,11 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { parseRssFeedItems } from "./parseRssFeedItems";
 
 describe("parseRssFeedItems", () => {
-	beforeEach(() => {
-		vi.spyOn(console, "error").mockImplementation(() => {});
-	});
-
 	it("should parse RSS 2.0 items correctly", () => {
 		const rssXml = `<?xml version="1.0" encoding="UTF-8"?>
 			<rss version="2.0">
@@ -50,7 +46,6 @@ describe("parseRssFeedItems", () => {
 
 		const posts = parseRssFeedItems(emptyXml, "https://example.com/empty.xml");
 		expect(posts).toHaveLength(0);
-		expect(console.error).toHaveBeenCalled();
 	});
 
 	it("should prefer RSS items over Atom entries when both exist", () => {

@@ -5,6 +5,7 @@ import type { FeedPost } from "../../types";
 import { sanitizeFileName } from "./sanitizeFileName";
 import { findFileForFeedUrl } from "./findFileForFeedUrl";
 import { modifyFrontmatter } from "./frontmatter";
+import { logError } from "../../log";
 
 function simpleHash(str: string): string {
 	let hash = 5381;
@@ -88,7 +89,7 @@ export async function createPostFile(
 	try {
 		return await plugin.app.vault.create(filePath, content);
 	} catch (err) {
-		console.error("[Rho Reader] Failed to create post file:", filePath, err);
+		logError("Failed to create post file:", filePath, err);
 		return null;
 	}
 }
@@ -123,7 +124,7 @@ export async function setPostReadState(
 			fm.read_at = read ? (readAt ?? Date.now()) : 0;
 		});
 	} catch (err) {
-		console.error("[Rho Reader] Failed to set post read state:", err);
+		logError("Failed to set post read state:", err);
 	}
 }
 
@@ -162,7 +163,7 @@ export async function setPostTags(
 			fm.rho_tags = tags;
 		});
 	} catch (err) {
-		console.error("[Rho Reader] Failed to set post tags:", err);
+		logError("Failed to set post tags:", err);
 	}
 }
 
@@ -258,6 +259,6 @@ export async function setFeedCounts(
 			}
 		}
 	} catch (err) {
-		console.error("[Rho Reader] Failed to update feed counts:", err);
+		logError("Failed to update feed counts:", err);
 	}
 }

@@ -1,6 +1,7 @@
 import type RhoReader from "../../main";
 import { updateFeedFrontmatter, setFeedSyncStatus } from "../utils";
 import { TFile } from "obsidian";
+import { logError } from "../../log";
 
 async function syncFeed(
 	plugin: RhoReader,
@@ -12,7 +13,7 @@ async function syncFeed(
 		await updateFeedFrontmatter(plugin, feedUrl, file);
 		await setFeedSyncStatus(plugin, file, "synced");
 	} catch (err) {
-		console.error(`Failed to sync feed ${feedUrl}:`, err);
+		logError(`Failed to sync feed ${feedUrl}:`, err);
 		await setFeedSyncStatus(plugin, file, "error");
 	}
 }

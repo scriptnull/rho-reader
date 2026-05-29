@@ -1,6 +1,7 @@
 import * as yaml from "js-yaml";
 import { TFile } from "obsidian";
 import type RhoReader from "../../main";
+import { logError } from "../../log";
 
 /**
  * Reads a markdown file's YAML frontmatter, lets the mutator modify it,
@@ -34,11 +35,7 @@ export async function modifyFrontmatter(
 	try {
 		fm = (yaml.load(fmRaw) as Record<string, unknown>) || {};
 	} catch (e) {
-		console.error(
-			"[Rho Reader] Failed to parse frontmatter:",
-			file.path,
-			e
-		);
+		logError("Failed to parse frontmatter:", file.path, e);
 		return false;
 	}
 

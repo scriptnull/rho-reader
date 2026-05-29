@@ -1,6 +1,7 @@
 import { Notice, TFile } from "obsidian";
 import type RhoReader from "../../main";
 import { serializeOpml, OpmlFeed } from "../utils/parseOpml";
+import { logError } from "../../log";
 
 export async function exportOpml(plugin: RhoReader): Promise<void> {
 	plugin.statusBar.setProcessing(true, "Exporting OPML");
@@ -39,7 +40,7 @@ export async function exportOpml(plugin: RhoReader): Promise<void> {
 			`Exported ${feeds.length} feed${feeds.length !== 1 ? "s" : ""} to ${exportPath}.`,
 		);
 	} catch (err) {
-		console.error("Failed to export OPML:", err);
+		logError("Failed to export OPML:", err);
 		new Notice("Failed to export OPML file.");
 	} finally {
 		plugin.statusBar.setProcessing(false);

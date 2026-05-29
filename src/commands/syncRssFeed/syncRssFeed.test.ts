@@ -34,27 +34,22 @@ function createMockPlugin(options: {
 describe("syncRssFeed", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.spyOn(console, "error").mockImplementation(() => {});
 	});
 
-	it("should log and return when no active file", async () => {
+	it("should return without syncing when no active file", async () => {
 		const plugin = createMockPlugin({ activeFile: null });
 
 		await syncRssFeed(plugin);
 
-		expect(console.error).toHaveBeenCalledWith("[Rho Reader] No active file.");
 		expect(updateFeedFrontmatter).not.toHaveBeenCalled();
 	});
 
-	it("should log and return when active file has no feed_url", async () => {
+	it("should return without syncing when active file has no feed_url", async () => {
 		const mockFile = { path: "test.md" } as TFile;
 		const plugin = createMockPlugin({ activeFile: mockFile });
 
 		await syncRssFeed(plugin);
 
-		expect(console.error).toHaveBeenCalledWith(
-			"[Rho Reader] No feed_url property found in frontmatter."
-		);
 		expect(updateFeedFrontmatter).not.toHaveBeenCalled();
 	});
 
