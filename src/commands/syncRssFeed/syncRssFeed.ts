@@ -1,3 +1,4 @@
+import { Notice } from "obsidian";
 import type RhoReader from "../../main";
 import { updateFeedFrontmatter, setFeedSyncStatus } from "../utils";
 
@@ -23,5 +24,6 @@ export async function syncRssFeed(plugin: RhoReader): Promise<void> {
 	} catch (err) {
 		console.error(`Failed to sync feed ${feedUrl}:`, err);
 		await setFeedSyncStatus(plugin, file, "error");
+		new Notice(`Couldn't sync ${file.basename}.`);
 	}
 }
