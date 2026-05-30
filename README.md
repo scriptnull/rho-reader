@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <b>Read and manage RSS feeds.</b><br/><br />
+  A Reading Companion for Obsidian 🌸📚<br/>
 </p>
 
 <p align="center">
@@ -13,11 +13,16 @@
 
 <br />
 
+Rho Reader is an RSS reader plugin for [Obsidian](https://obsidian.md/). It is built on top of [Obsidian Bases](https://help.obsidian.md/bases).
+
+[File over app](https://stephango.com/file-over-app) - Every feed and post gets a file of its own in your vault. You can turn any file in your vault into an RSS feed source by adding the `feed_url` property.
+
+<p align="center">🌸</p>
+
 **Rho** was derived from *Rhododendron* after I discovered the existence of these beautiful flowers in a bedtime story.
 
 ## Features
 
-- Built on top of [Obsidian Bases](https://help.obsidian.md/bases).
 - Supports RSS, Atom, and JSON Feed formats.
 - Import and export OPML.
 - Tagging system to organise reading lists.
