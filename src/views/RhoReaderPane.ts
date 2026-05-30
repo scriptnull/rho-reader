@@ -1,4 +1,4 @@
-import { App, ItemView, Menu, SuggestModal, WorkspaceLeaf, setIcon } from "obsidian";
+import { App, ItemView, Menu, Notice, SuggestModal, WorkspaceLeaf, setIcon } from "obsidian";
 import type RhoReader from "../main";
 import type { FeedPost } from "../types";
 import { syncAllRssFeeds } from "../commands/syncAllRssFeeds";
@@ -482,6 +482,7 @@ export class RhoReaderPane extends ItemView {
 			} catch (err) {
 				console.error("Failed to sync feed:", err);
 				await setFeedSyncStatus(this.plugin, file, "error");
+				new Notice(`Couldn't sync ${file.basename}.`);
 			}
 		}
 		this.isLoading = false;
