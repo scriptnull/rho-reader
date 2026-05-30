@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="Rho Reader" src="https://github.com/user-attachments/assets/38f0b1a4-ce9c-4c8e-b850-7f37f45421e0" />
+  <img alt="Rho Reader" src="https://github.com/user-attachments/assets/0a484455-231a-4183-b57b-8389d0c47298" />
 </p>
 
 <p align="center">
@@ -27,7 +27,7 @@ Built on the [file over app](https://stephango.com/file-over-app) philosophy: ev
 
 Requires Obsidian 1.9.0 or newer (Rho Reader is built on top of Obsidian Bases).
 
-### Option 1: Community plugins (recommended, once approved)
+### Option 1: Community plugins (recommended)
 
 1. Open **Settings → Community plugins** in Obsidian.
 2. Click **Browse** and search for "Rho Reader".
