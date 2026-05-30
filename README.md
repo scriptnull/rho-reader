@@ -2,11 +2,6 @@
   <img alt="Rho Reader" src="https://github.com/user-attachments/assets/38f0b1a4-ce9c-4c8e-b850-7f37f45421e0" />
 </p>
 
-
-<p align="center">
-  A Reading Companion for Obsidian 🌸📚<br/>
-</p>
-
 <p align="center">
   <img src="https://img.shields.io/badge/Obsidian-Plugin-7f6df2" />
   <a href="https://github.com/scriptnull/rho-reader/actions/workflows/test.yml"><img src="https://github.com/scriptnull/rho-reader/actions/workflows/test.yml/badge.svg?branch=main" /></a>
@@ -14,9 +9,9 @@
 
 <br />
 
-Rho Reader is an RSS reader plugin for [Obsidian](https://obsidian.md/). It is built on top of [Obsidian Bases](https://help.obsidian.md/bases).
+Rho Reader is an RSS reader plugin for [Obsidian](https://obsidian.md/).
 
-[File over app](https://stephango.com/file-over-app) - Every feed and post gets a file of its own in your vault. You can turn any file in your vault into an RSS feed source by adding the `feed_url` property.
+Built on the [file over app](https://stephango.com/file-over-app) philosophy: every feed and every post is its own file in your vault. Add the `feed_url` property to any file to turn it into a feed source. Reading your feeds is just browsing an [Obsidian base](https://help.obsidian.md/bases).
 
 <p align="center">🌸</p>
 
