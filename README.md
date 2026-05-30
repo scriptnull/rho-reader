@@ -1,6 +1,7 @@
 <p align="center">
-  <img width="1219" height="517" alt="Rho Reader banner" src="https://github.com/user-attachments/assets/c01351f2-db80-45e8-918e-162fd99ec4ed" />
+  <img alt="Rho Reader" src="https://github.com/user-attachments/assets/38f0b1a4-ce9c-4c8e-b850-7f37f45421e0" />
 </p>
+
 
 <p align="center">
   A Reading Companion for Obsidian 🌸📚<br/>
