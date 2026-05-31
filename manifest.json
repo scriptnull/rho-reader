@@ -3,7 +3,7 @@
 	"name": "Rho Reader",
 	"version": "1.0.0",
 	"minAppVersion": "1.9.0",
-	"description": "Read and manage RSS feeds",
+	"description": "Read and manage RSS feeds.",
 	"author": "Vishnu Bharathi",
 	"authorUrl": "https://vishnubharathi.codes/",
 	"isDesktopOnly": false
