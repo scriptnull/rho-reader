@@ -26,6 +26,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Restore manifest.json
+        run: git checkout -- manifest.json
+
       - name: Create plugin zip
         run: zip rho-reader.zip main.js manifest.json styles.css
 
