@@ -38,6 +38,14 @@ By default, clicking a post opens it in your web browser. It also marks the post
 
 <img alt="Rho Reader - Open posts" src="https://github.com/user-attachments/assets/66cfbc80-8964-4ad5-a3c2-3414f8a1727f" />
 
+<p align="center">~</p>
+
+Explore the Rho commands to get the most out of it.
+
+<img alt="Rho Reader - Commands" src="https://github.com/user-attachments/assets/6818c527-2f9c-4c7f-8499-f159e87936e2" />
+
+<p align="center">~</p>
+
 ## Installation
 
 Requires Obsidian 1.9.0 or newer (Rho Reader is built on top of Obsidian Bases).
