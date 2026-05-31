@@ -19,13 +19,16 @@ Rho Reader is an RSS reader plugin for [Obsidian](https://obsidian.md/).
 
 ## Workflows
 
-Attach an RSS feed URL to a note and get the posts alongside it.
+Add an RSS feed URL to a note and get the posts alongside it.
 
 <img alt="Rho Reader - Pane" src="https://github.com/user-attachments/assets/11822188-526b-42ff-9f5c-2036fe7b5602" />
 
 <p align="center">~</p>
 
-By default, clicking a post opens it in your web browser. To open posts inside Obsidian instead, enable the Web Viewer core plugin. Clicking a post also marks it as read, helping you track what you've seen.
+By default, clicking a post opens it in your web browser. It also marks the post as read, helping you track what you've seen.
+
+> [!TIP]
+> Enable the **Web Viewer** core plugin to open posts inside Obsidian instead.
 
 <img alt="Rho Reader - Open posts" src="https://github.com/user-attachments/assets/66cfbc80-8964-4ad5-a3c2-3414f8a1727f" />
 
