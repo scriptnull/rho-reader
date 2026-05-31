@@ -11,11 +11,24 @@
 
 Rho Reader is an RSS reader plugin for [Obsidian](https://obsidian.md/).
 
-Built on the [file over app](https://stephango.com/file-over-app) philosophy: every feed and every post is its own file in your vault. Add the `feed_url` property to any file to turn it into a feed source. Reading your feeds is just browsing an [Obsidian base](https://help.obsidian.md/bases).
+[File over app](https://stephango.com/file-over-app): _Every feed and every post is its own file in your vault._
 
 <p align="center">🌸</p>
 
 **Rho** was derived from *Rhododendron* after I discovered the existence of these beautiful flowers in a bedtime story.
+
+## Workflows
+
+Attach an RSS feed URL to a note and get the posts alongside it.
+
+<img alt="Add feed" src="https://github.com/user-attachments/assets/f92d37b7-a93f-492d-8ab7-221e432fd612" />
+
+<p align="center">~</p>
+
+Clicking a post opens it in your web browser. To stay inside Obsidian instead, enable the "Web Viewer" core plugin. Clicking a post marks it "read" by default to help you keep track of what you have read.
+
+<img alt="Rho Reader - Where posts open" src="https://github.com/user-attachments/assets/2b0c1767-629f-4a3c-aa19-6abb473e105d" />
+
 
 ## Features
 
