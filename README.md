@@ -17,6 +17,12 @@ Rho Reader is an RSS reader plugin for [Obsidian](https://obsidian.md/).
 
 **Rho** was derived from *Rhododendron* after I discovered the existence of these beautiful flowers in a bedtime story.
 
+## Features
+
+- Supports RSS, Atom, and JSON Feed formats.
+- Import and export OPML.
+- Tagging system to organise reading lists.
+
 ## Workflows
 
 Add an RSS feed URL to a note and get the posts alongside it.
@@ -31,13 +37,6 @@ By default, clicking a post opens it in your web browser. It also marks the post
 > Enable the **Web Viewer** core plugin to open posts inside Obsidian instead.
 
 <img alt="Rho Reader - Open posts" src="https://github.com/user-attachments/assets/66cfbc80-8964-4ad5-a3c2-3414f8a1727f" />
-
-
-## Features
-
-- Supports RSS, Atom, and JSON Feed formats.
-- Import and export OPML.
-- Tagging system to organise reading lists.
 
 ## Installation
 
