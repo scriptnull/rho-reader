@@ -36,7 +36,8 @@ By default, clicking a post opens it in your web browser. It also marks the post
 > [!TIP]
 > Enable the **Web Viewer** core plugin to open posts inside Obsidian instead.
 
-<img alt="Rho Reader - Open posts" src="https://github.com/user-attachments/assets/66cfbc80-8964-4ad5-a3c2-3414f8a1727f" />
+<img alt="Rho Reader - Where posts open" src="https://github.com/user-attachments/assets/bdeea344-f429-462f-9ba0-a6bda8157717" />
+
 
 <p align="center">~</p>
 
