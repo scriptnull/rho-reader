@@ -8,6 +8,7 @@ import { VIEW_TYPE_RHO_READER, RhoReaderPane } from "./views/RhoReaderPane";
 import { openReaderForFile } from "./views/openReaderForFile";
 import { RhoReaderSettingTab } from "./settings/RhoReaderSettingTab";
 import { registerCommands } from "./commands/register";
+import { openRssFeedReader } from "./commands/openRssFeedReader";
 import { drainPendingReads } from "./commands/utils";
 import { StatusBar } from "./statusBar";
 import {
@@ -29,6 +30,10 @@ export default class RhoReader extends Plugin {
 		);
 		this.addSettingTab(new RhoReaderSettingTab(this.app, this));
 		registerCommands(this);
+
+		this.addRibbonIcon("rss", "Open RSS feed reader", () => {
+			void openRssFeedReader(this);
+		});
 
 		this.registerEvent(
 			this.app.workspace.on("file-open", (file: TFile | null) => {
