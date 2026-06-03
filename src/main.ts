@@ -31,7 +31,7 @@ export default class RhoReader extends Plugin {
 		this.addSettingTab(new RhoReaderSettingTab(this.app, this));
 		registerCommands(this);
 
-		this.addRibbonIcon("rss", "Open RSS feed reader", () => {
+		this.addRibbonIcon("rss", "Open Rho Reader", () => {
 			void openRssFeedReader(this);
 		});
 

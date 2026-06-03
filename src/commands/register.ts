@@ -13,7 +13,7 @@ export function registerCommands(plugin: RhoReader): void {
 
 	plugin.addCommand({
 		id: "open-rss-feed-reader",
-		name: "Open RSS feed reader",
+		name: "Open Rho Reader",
 		callback: () => openRssFeedReader(plugin),
 	});
 
