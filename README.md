@@ -22,6 +22,7 @@ Rho Reader is an RSS reader plugin for [Obsidian](https://obsidian.md/).
 - Supports RSS, Atom, and JSON Feed formats.
 - Import and export OPML.
 - Tagging system to organise reading lists.
+- Sidebar feeds list with per-feed unread counts.
 
 ## Workflows
 

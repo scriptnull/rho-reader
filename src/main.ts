@@ -5,6 +5,7 @@ import {
 	normalizeFolderPath,
 } from "./settings/validation";
 import { VIEW_TYPE_RHO_READER, RhoReaderPane } from "./views/RhoReaderPane";
+import { VIEW_TYPE_RHO_FEEDS, RhoFeedsView } from "./views/RhoFeedsView";
 import { openReaderForFile } from "./views/openReaderForFile";
 import { RhoReaderSettingTab } from "./settings/RhoReaderSettingTab";
 import { registerCommands } from "./commands/register";
@@ -28,8 +29,18 @@ export default class RhoReader extends Plugin {
 			VIEW_TYPE_RHO_READER,
 			(leaf) => new RhoReaderPane(leaf, this)
 		);
+		this.registerView(
+			VIEW_TYPE_RHO_FEEDS,
+			(leaf) => new RhoFeedsView(leaf, this)
+		);
 		this.addSettingTab(new RhoReaderSettingTab(this.app, this));
 		registerCommands(this);
+
+		this.addCommand({
+			id: "open-feeds-list",
+			name: "Open feeds list",
+			callback: () => void this.activateFeedsView(),
+		});
 
 		this.addRibbonIcon("rss", "Open RSS feed reader", () => {
 			void openRssFeedReader(this);
@@ -53,10 +64,32 @@ export default class RhoReader extends Plugin {
 			await migrateLegacyReadState(this);
 			await clearStaleSyncStatuses(this);
 			void drainPendingReads(this);
+			// Add the feeds list to the left sidebar so its RSS tab appears
+			// alongside the built-in file/search/bookmark tabs.
+			void this.ensureFeedsView();
 			// Re-open the reader pane for the active file after plugin (re)load,
 			// since `file-open` won't fire for a file that's already open.
 			void openReaderForFile(this, this.app.workspace.getActiveFile());
 		});
+	}
+
+	// Create the feeds view in the left sidebar if it isn't already present,
+	// without stealing focus from the user's current view.
+	async ensureFeedsView(): Promise<void> {
+		if (this.app.workspace.getLeavesOfType(VIEW_TYPE_RHO_FEEDS).length > 0) {
+			return;
+		}
+		const leaf = this.app.workspace.getLeftLeaf(false);
+		await leaf?.setViewState({ type: VIEW_TYPE_RHO_FEEDS, active: false });
+	}
+
+	// Reveal the feeds view, creating it in the left sidebar if needed.
+	async activateFeedsView(): Promise<void> {
+		await this.ensureFeedsView();
+		const leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_RHO_FEEDS)[0];
+		if (leaf) {
+			await this.app.workspace.revealLeaf(leaf);
+		}
 	}
 
 	async loadSettings() {
