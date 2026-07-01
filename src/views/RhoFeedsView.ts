@@ -1,11 +1,13 @@
 import { ItemView, TFile, WorkspaceLeaf, debounce, setIcon } from "obsidian";
 import type RhoReader from "../main";
 import { syncAllRssFeeds } from "../commands/syncAllRssFeeds";
+import { openReaderForFeedUrl } from "./openReaderForFile";
 
 export const VIEW_TYPE_RHO_FEEDS = "rho-reader-feeds";
 
 interface FeedListItem {
 	file: TFile;
+	feedUrl: string;
 	title: string;
 	total: number;
 	unread: number;
@@ -76,6 +78,7 @@ export class RhoFeedsView extends ItemView {
 			const c = counts.get(feedUrl) ?? { total: 0, unread: 0 };
 			feeds.push({
 				file,
+				feedUrl,
 				title: file.basename,
 				total: c.total,
 				unread: c.unread,
@@ -124,7 +127,7 @@ export class RhoFeedsView extends ItemView {
 			}
 
 			item.addEventListener("click", () => {
-				void this.openFeed(feed.file);
+				void this.openFeed(feed.feedUrl);
 			});
 		}
 	}
@@ -164,10 +167,8 @@ export class RhoFeedsView extends ItemView {
 		});
 	}
 
-	// Open the feed note; the workspace `file-open` event then drives the
-	// reader pane to show that feed's posts.
-	async openFeed(file: TFile) {
-		const leaf = this.plugin.app.workspace.getLeaf(false);
-		await leaf.openFile(file);
+	// Show the feed's posts in the reader pane, bringing it to the foreground.
+	async openFeed(feedUrl: string) {
+		await openReaderForFeedUrl(this.plugin, feedUrl, true);
 	}
 }
